@@ -28,8 +28,11 @@ jobs:
           echo "vars.sample_variable_boolean=[${{ vars.sample_variable_boolean }}]"
           echo "vars.sample_variable_number=[${{ vars.sample_variable_number }}]"
           echo "vars.sample_variable_json=[${{ vars.sample_variable_json }}]"
-      - run: node -p "console.log('${{ vars.sample_variable_json }}')"
-      - run: |
+          node -p "console.log('${{ vars.sample_variable_json }}')"
+          echo "vars.sample_variable_json="
+          echo "["
+          echo ${{ toJSON(vars.sample_variable_json) }}
+          echo "]"
           echo "inputs.caller=[${{ inputs.caller }}]"
           echo "inputs.secrets=[${{ inputs.secrets }}]"
   list-git-files:
