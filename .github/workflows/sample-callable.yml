@@ -1,0 +1,22 @@
+# This is a callable workflow that is reusable to other workflow
+name: Sample Callable Workflow
+
+on:
+  workflow_call:
+  workflow_dispatch:
+
+jobs:
+  print-variables:
+    runs-on: ubuntu-latest
+    steps:
+      - run: |
+          echo "vars.sample_variable_string=[${{ vars.sample_variable_string }}]"
+          echo "vars.sample_variable_boolean=[${{ vars.sample_variable_boolean }}]"
+          echo "vars.sample_variable_number=[${{ vars.sample_variable_number }}]"
+          echo "vars.sample_variable_json=[${{ vars.sample_variable_json }}]"
+  list-git-files:
+    runs-on: ubuntu-latest
+    steps:
+      - uses: actions/checkout@v4
+      - name: List trackable files
+        run: git ls-tree -r main --name-only
