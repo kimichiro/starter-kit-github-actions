@@ -35,11 +35,11 @@ jobs:
   list-git-files:
     runs-on: ubuntu-latest
     outputs:
-      file_count: ${{ steps.count-git-file.outputs }}
+      file_count: ${{ steps.count-git-file.outputs.file_count }}
     steps:
       - uses: actions/checkout@v4
       - name: List trackable files
         run: git ls-tree -r main --name-only
       - name: Count trackable files
         id: count-git-file
-        run: GITHUB_OUTPUT=$(git ls-files | wc -l)
+        run: echo "file_count=$(git ls-files | wc -l)" >> $GITHUB_OUTPUT
