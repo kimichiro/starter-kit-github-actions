@@ -27,5 +27,12 @@ jobs:
           who-to-greet: "[[${{ inputs.name }}]]"
   call-absolute-private-workflow:
     uses: kimichiro/starter-kit-github-actions/.github/workflows/sample-callable.yml@main
+    with:
+      caller: call-absolute-private-workflow
+    secrets: inherit
   call-relative-private-workflow:
     uses: ./.github/workflows/sample-callable.yml
+    with:
+      caller: call-relative-private-workflow
+    secrets:
+      sample_secret: a sadly visible secret
