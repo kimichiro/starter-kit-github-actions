@@ -1,0 +1,28 @@
+# This is a basic workflow that is manually triggered through GitHub site or REST API
+name: Sample Manual Workflow
+
+on:
+  workflow_dispatch:
+    inputs:
+      name:
+        description: 'Person to greet'
+        default: 'World'
+        required: true
+        type: string
+      reusable-greet:
+        description: 'Person to greet'
+        default: false
+        type: boolean
+
+jobs:
+  greet:
+    runs-on: ubuntu-latest
+
+    steps:
+    - name: Send greeting
+      run: echo "Hello ${{ inputs.name }}"
+    - name: Conditional greeting with reusable action
+      if: ${{ inputs.reusable-greet }}
+      uses: actions/hello-world-javascript-action@main
+      with:
+        who-to-greet: "[[${{ inputs.name }}]]"
