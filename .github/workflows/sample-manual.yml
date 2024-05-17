@@ -36,3 +36,14 @@ jobs:
       caller: call-relative-private-workflow
     secrets:
       sample_secret: a sadly visible secret
+  needs-callables:
+    needs: [call-absolute-private-workflow, call-relative-private-workflow]
+    runs-on: ubuntu-latest
+    steps:
+      - name: Print results from callables
+        env:
+          file_count_1: ${{ needs.call-absolute-private-workflow.outputs.file_count }}
+          file_count_2: ${{ needs.call-relative-private-workflow.outputs.file_count }}
+        run: |
+          echo "[call-absolute-private-workflow] output->file_count: ${{ env.file_count_1 }}"
+          echo "[call-relative-private-workflow] output->file_count: ${{ env.file_count_2 }}"
