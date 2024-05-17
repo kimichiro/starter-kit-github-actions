@@ -26,10 +26,6 @@ jobs:
         with:
           who-to-greet: "[[${{ inputs.name }}]]"
   call-absolute-private-workflow:
-    runs-on: ubuntu-latest
-    steps:
-      - uses: kimichiro/starter-kit-github/.github/workflows/sample-callable.yml@main
+    uses: kimichiro/starter-kit-github/.github/workflows/sample-callable.yml@main
   call-relative-private-workflow:
-    runs-on: ubuntu-latest
-    steps:
-      - uses: ./.github/workflows/sample-callable.yml@main
+    uses: ./.github/workflows/sample-callable.yml
