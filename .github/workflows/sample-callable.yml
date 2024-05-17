@@ -42,4 +42,4 @@ jobs:
         run: git ls-tree -r main --name-only
       - name: Count trackable files
         id: count-git-file
-        run: $(git ls-files | wc -l) >> $GITHUB_OUTPUT
+        run: GITHUB_OUTPUT=$(git ls-files | wc -l)
