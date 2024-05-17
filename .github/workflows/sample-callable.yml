@@ -8,7 +8,7 @@ on:
         required: true
         type: string
     secrets:
-      sample-secret:
+      sample_secret:
         required: true
     outputs:
       file_count:
