@@ -36,10 +36,10 @@ jobs:
       caller: call-relative-private-workflow
     secrets:
       sample_secret: a sadly visible secret
-  call-absolute-private-composite-action:
+  call-relative-private-composite-action:
     runs-on: ubuntu-latest
     steps:
-      - uses: kimichiro/starter-kit-github-actions/.github/actions/sample-composite-action.yml@main
+      - uses: ./.github/actions/sample-composite-action.yml
         id: sample-composite-action
         with:
           multiplier: 4
