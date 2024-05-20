@@ -36,6 +36,14 @@ jobs:
       caller: call-relative-private-workflow
     secrets:
       sample_secret: a sadly visible secret
+  call-absolute-private-composite-action:
+    runs-on: ubuntu-latest
+    steps:
+      - uses: kimichiro/starter-kit-github-actions/.github/actions/sample-composite-action@main
+        id: sample-composite-action
+        with:
+          multiplier: 4
+      - run: echo "product-number=[${{ steps.sample-composite-action.outputs.product-number }}]"
   needs-callables:
     needs: [call-absolute-private-workflow, call-relative-private-workflow]
     runs-on: ubuntu-latest
