@@ -1,0 +1,21 @@
+name: Sample Composite Action
+
+inputs:
+  multiplier:
+    description: 'Multiplier'
+    required: true
+    default: 1
+outputs:
+  product-number:
+    description: "Product number"
+    value: ${{ steps.generator.outputs.product-number }}
+
+runs:
+  using: "composite"
+  steps:
+    - name: Generator
+      id: generator
+      run: |
+        echo "random_number=$RANDOM"
+        echo "random_number=$random_number"
+        echo "product-number=$(echo $(( $random_number*${{ inputs.multiplier }} )))" >> $GITHUB_OUTPUT
