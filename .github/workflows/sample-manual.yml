@@ -40,7 +40,7 @@ jobs:
     runs-on: ubuntu-latest
     steps:
       - uses: actions/checkout@v4
-      - run: ls -R
+      - run: ls -Ralt
       - uses: ./.github/actions/sample-composite-action.yml
         id: sample-composite-action
         with:
