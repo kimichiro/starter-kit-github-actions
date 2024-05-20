@@ -19,3 +19,4 @@ runs:
         echo "random_number=$RANDOM"
         echo "random_number=$random_number"
         echo "product-number=$(echo $(( $random_number*${{ inputs.multiplier }} )))" >> $GITHUB_OUTPUT
+      shell: bash
