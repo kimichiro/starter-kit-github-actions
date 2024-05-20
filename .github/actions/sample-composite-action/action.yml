@@ -16,8 +16,9 @@ runs:
     - name: Generator
       id: generator
       run: |
-        echo "random_number=$RANDOM"
+        random_number=$RANDOM
+        multiplier=${{ inputs.multiplier }}
         echo "random_number=$random_number"
-        echo "multiplier=${{ inputs.multiplier }}"
+        echo "multiplier=$multiplier"
         echo "product-number=$(echo $(( $random_number*$multiplier )))" >> $GITHUB_OUTPUT
       shell: bash
