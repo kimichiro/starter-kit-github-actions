@@ -1,0 +1,17 @@
+name: Sample Javascript Action
+description: Sample Javascript Action
+inputs:
+  required:
+    description: Required input
+    required: true
+    default: 'required'
+  optional:
+    description: Optional input
+    default: 'optional'
+outputs:
+  result:
+    description: The resulting output
+
+runs:
+  using: 'node20'
+  main: 'index.js'

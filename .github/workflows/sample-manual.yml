@@ -36,6 +36,16 @@ jobs:
       caller: call-relative-private-workflow
     secrets:
       sample_secret: a sadly visible secret
+  call-relative-private-javascript-action:
+    runs-on: ubuntu-latest
+    steps:
+      - uses: actions/checkout@v4
+      - uses: ./.github/actions/sample-javascript-action
+        id: sample-javascript-action
+        with:
+          required: sample-required-value
+          optional: sample-optional-value
+      - run: echo "result=[${{ steps.sample-javascript-action.outputs.result }}]"
   call-relative-private-composite-action:
     runs-on: ubuntu-latest
     steps:
