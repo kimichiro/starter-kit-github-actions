@@ -3,6 +3,7 @@
 Provide reusable workflow for git development pipeline
 
 ## GitFlow Development Pipeline
+![GitFlow Diagram](/assets/gitflow-diagram.svg)
 1. (*Manually*) Push changes, require to setup branch protection as follows
    -  for branch `feature/*`, open for each `developer`
    -  for branch `hotfix/*`, open for each `developer`
@@ -93,6 +94,7 @@ Provide reusable workflow for git development pipeline
          - `npm publish`
 
 ## GitHub Flow Development Pipeline
+![GitHub Flow Diagram](/assets/github-flow-diagram.svg)
 1. (*Manually*) Push changes, require to setup branch protection as follows
    -  for branch `feature/*`, open for each `developer`
    -  for branch `main`, allow for `repo admin`, `release admin`
