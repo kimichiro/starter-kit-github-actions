@@ -48757,7 +48757,8 @@ async function run() {
         const preRelease = (0, input_1.getPreRelease)();
         const preReleaseId = (0, input_1.getPreReleaseId)();
         const tagPrefix = (0, input_1.getTagPrefix)();
-        const version = await (0, version_1.bumpVersion)(type, preRelease, preReleaseId, tagPrefix, package_json_1.default.version);
+        const fallbackVersion = (0, input_1.getFallbackVersion)();
+        const version = await (0, version_1.bumpVersion)(type, preRelease, preReleaseId, tagPrefix, fallbackVersion);
         core.setOutput('version', version);
     }
     catch (error) {
@@ -48806,44 +48807,88 @@ var __importDefault = (this && this.__importDefault) || function (mod) {
     return (mod && mod.__esModule) ? mod : { "default": mod };
 };
 Object.defineProperty(exports, "__esModule", ({ value: true }));
-exports.getTagPrefix = exports.getPreReleaseId = exports.getPreRelease = exports.getType = void 0;
+exports.getFallbackVersion = exports.getTagPrefix = exports.getPreReleaseId = exports.getPreRelease = exports.getType = void 0;
 const core = __importStar(__nccwpck_require__(2186));
 const joi_1 = __importDefault(__nccwpck_require__(918));
+const inputNames = {
+    type: 'type',
+    prerelease: 'prerelease',
+    prereleaseId: 'prerelease-id',
+    tagPrefix: 'tag-prefix',
+    fallbackVersion: 'fallback-version',
+};
 const typeSchema = joi_1.default
     .string()
     .valid('major', 'minor', 'patch')
-    .default('patch');
-const preReleaseSchema = joi_1.default.boolean().default(true);
-const preReleaseIdSchema = joi_1.default.string().default('rc');
-const tagPrefixSchema = joi_1.default.string().allow('', null);
+    .default('patch')
+    .messages({
+    'string.base': `'${inputNames.type}' should be a type of string`,
+    'string.empty': `'${inputNames.type}' must be one of 'major', 'minor' or 'patch'`,
+    'any.only': `'${inputNames.type}' must be one of 'major', 'minor' or 'patch'`,
+});
+const prereleaseSchema = joi_1.default
+    .boolean()
+    .default(true)
+    .messages({
+    'boolean.base': `'${inputNames.prerelease}' should be one of true or false`,
+});
+const prereleaseIdSchema = joi_1.default
+    .string()
+    .default('rc')
+    .messages({
+    'string.base': `'${inputNames.prereleaseId}' should be a type of string`,
+    'string.empty': `'${inputNames.prereleaseId}' must not be empty string`,
+});
+const tagPrefixSchema = joi_1.default
+    .string()
+    .allow('', null)
+    .messages({
+    'string.base': `'${inputNames.tagPrefix}' should be a type of string`,
+});
+const fallbackVersionSchema = joi_1.default
+    .string()
+    .pattern(/^[0-9]+(\.[0-9]+(\.[0-9]+)?)?$/, 'numbers')
+    .default('0.0.0')
+    .messages({
+    'string.base': `'${inputNames.fallbackVersion}' should be a type of string`,
+    'string.empty': `'${inputNames.fallbackVersion}' must be a valid semantic version`,
+    'string.pattern.base': `'${inputNames.fallbackVersion}' must be a valid semantic version`,
+});
 function getType() {
-    const type = core.getInput('type');
+    const type = core.getInput(inputNames.type);
     core.info(`inputs.type=${JSON.stringify(type)}`);
     joi_1.default.assert(type, typeSchema);
     return type;
 }
 exports.getType = getType;
 function getPreRelease() {
-    const preRelease = Boolean(core.getInput('prerelease'));
-    core.info(`inputs.prerelease=${JSON.stringify(preRelease)}`);
-    joi_1.default.assert(preRelease, preReleaseSchema);
-    return preRelease;
+    const prerelease = core.getInput(inputNames.prerelease);
+    core.info(`inputs.prerelease=${JSON.stringify(prerelease)}`);
+    joi_1.default.assert(prerelease, prereleaseSchema);
+    return Boolean(prerelease);
 }
 exports.getPreRelease = getPreRelease;
 function getPreReleaseId() {
-    const preReleaseId = core.getInput('prerelease-id');
-    core.info(`inputs.prerelease-id=${JSON.stringify(preReleaseId)}`);
-    joi_1.default.assert(preReleaseId, preReleaseIdSchema);
-    return preReleaseId;
+    const prereleaseId = core.getInput(inputNames.prereleaseId);
+    core.info(`inputs.prerelease-id=${JSON.stringify(prereleaseId)}`);
+    joi_1.default.assert(prereleaseId, prereleaseIdSchema);
+    return prereleaseId;
 }
 exports.getPreReleaseId = getPreReleaseId;
 function getTagPrefix() {
-    const tagPrefix = core.getInput('tag-prefix');
+    const tagPrefix = core.getInput(inputNames.tagPrefix);
     core.info(`inputs.tag-prefix=${JSON.stringify(tagPrefix)}`);
     joi_1.default.assert(tagPrefix, tagPrefixSchema);
     return tagPrefix;
 }
 exports.getTagPrefix = getTagPrefix;
+function getFallbackVersion() {
+    const fallbackVersion = core.getInput(inputNames.fallbackVersion);
+    core.info(`inputs.fallback-version=${JSON.stringify(fallbackVersion)}`);
+    joi_1.default.assert(fallbackVersion, fallbackVersionSchema);
+    return fallbackVersion;
+}
+exports.getFallbackVersion = getFallbackVersion;
 
 
 /***/ }),
@@ -48916,7 +48961,7 @@ async function findMostRecentVersion(tagPrefix) {
 }
 exports.findMostRecentVersion = findMostRecentVersion;
 async function bumpVersion(type, prerelease, prereleaseId, tagPrefix, fallbackVersion) {
-    const recentVersion = await exports.findMostRecentVersion(tagPrefix);
+    const recentVersion = await findMostRecentVersion(tagPrefix);
     const baseVersion = recentVersion == null ? fallbackVersion : recentVersion;
     const isPrerelease = semver_1.default.prerelease(baseVersion) != null;
     const bumpVersion = prerelease

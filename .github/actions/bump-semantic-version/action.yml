@@ -12,6 +12,9 @@ inputs:
     default: 'rc'
   tag-prefix:
     description: Git tag prefix to match for the most recent version
+  fallback-version:
+    description: Fallback version to use if no tags found
+    default: '0.0.0'
 outputs:
   version:
     description: The bump semantic version

@@ -1,43 +1,89 @@
 import * as core from '@actions/core'
 import joi from 'joi'
 
+const inputNames = {
+    type: 'type',
+    prerelease: 'prerelease',
+    prereleaseId: 'prerelease-id',
+    tagPrefix: 'tag-prefix',
+    fallbackVersion: 'fallback-version',
+}
+
 const typeSchema = joi
     .string()
     .valid('major', 'minor', 'patch')
     .default('patch')
-const preReleaseSchema = joi.boolean().default(true)
-const preReleaseIdSchema = joi.string().default('rc')
-const tagPrefixSchema = joi.string().allow('', null)
+    .messages({
+        'string.base': `'${inputNames.type}' should be a type of string`,
+        'string.empty': `'${inputNames.type}' must be one of 'major', 'minor' or 'patch'`,
+        'any.only': `'${inputNames.type}' must be one of 'major', 'minor' or 'patch'`,
+    })
+const prereleaseSchema = joi
+    .boolean()
+    .default(true)
+    .messages({
+        'boolean.base': `'${inputNames.prerelease}' should be one of true or false`,
+    })
+const prereleaseIdSchema = joi
+    .string()
+    .default('rc')
+    .messages({
+        'string.base': `'${inputNames.prereleaseId}' should be a type of string`,
+        'string.empty': `'${inputNames.prereleaseId}' must not be empty string`,
+    })
+const tagPrefixSchema = joi
+    .string()
+    .allow('', null)
+    .messages({
+        'string.base': `'${inputNames.tagPrefix}' should be a type of string`,
+    })
+const fallbackVersionSchema = joi
+    .string()
+    .pattern(/^[0-9]+(\.[0-9]+(\.[0-9]+)?)?$/, 'numbers')
+    .default('0.0.0')
+    .messages({
+        'string.base': `'${inputNames.fallbackVersion}' should be a type of string`,
+        'string.empty': `'${inputNames.fallbackVersion}' must be a valid semantic version`,
+        'string.pattern.base': `'${inputNames.fallbackVersion}' must be a valid semantic version`,
+    })
 
 export type Type = 'major' | 'minor' | 'patch'
 export type Prerelease = boolean
 export type PrereleaseId = string
 export type TagPrefix = string
+export type FallbackVersion = string
 
 export function getType(): Type {
-    const type = core.getInput('type') as Type
+    const type = core.getInput(inputNames.type)
     core.info(`inputs.type=${JSON.stringify(type)}`)
     joi.assert(type, typeSchema)
-    return type
+    return type as Type
 }
 
 export function getPreRelease(): Prerelease {
-    const preRelease = Boolean(core.getInput('prerelease')) as Prerelease
-    core.info(`inputs.prerelease=${JSON.stringify(preRelease)}`)
-    joi.assert(preRelease, preReleaseSchema)
-    return preRelease
+    const prerelease = core.getInput(inputNames.prerelease)
+    core.info(`inputs.prerelease=${JSON.stringify(prerelease)}`)
+    joi.assert(prerelease, prereleaseSchema)
+    return Boolean(prerelease)
 }
 
 export function getPreReleaseId(): PrereleaseId {
-    const preReleaseId = core.getInput('prerelease-id') as PrereleaseId
-    core.info(`inputs.prerelease-id=${JSON.stringify(preReleaseId)}`)
-    joi.assert(preReleaseId, preReleaseIdSchema)
-    return preReleaseId
+    const prereleaseId = core.getInput(inputNames.prereleaseId)
+    core.info(`inputs.prerelease-id=${JSON.stringify(prereleaseId)}`)
+    joi.assert(prereleaseId, prereleaseIdSchema)
+    return prereleaseId
 }
 
 export function getTagPrefix(): TagPrefix {
-    const tagPrefix = core.getInput('tag-prefix') as TagPrefix
+    const tagPrefix = core.getInput(inputNames.tagPrefix)
     core.info(`inputs.tag-prefix=${JSON.stringify(tagPrefix)}`)
     joi.assert(tagPrefix, tagPrefixSchema)
     return tagPrefix
+}
+
+export function getFallbackVersion(): FallbackVersion {
+    const fallbackVersion = core.getInput(inputNames.fallbackVersion)
+    core.info(`inputs.fallback-version=${JSON.stringify(fallbackVersion)}`)
+    joi.assert(fallbackVersion, fallbackVersionSchema)
+    return fallbackVersion
 }
