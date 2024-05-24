@@ -4,13 +4,13 @@ on:
   workflow_dispatch:
 
 jobs:
-  # bump prerelease version from the most recent tag
-  bump-prerelease-version:
+  publish-release:
     runs-on: ubuntu-latest
-    outputs:
-      prerelease-version: ${{ steps.bump-prerelease-version.outputs.version }}
+    permissions:
+      contents: write
     steps:
       - uses: actions/checkout@v4
+      # bump version as prerelease
       - uses: ./.github/actions/bump-semantic-version
         id: bump-prerelease-version
         with:
@@ -18,15 +18,10 @@ jobs:
           prerelease: true
           prerelease-id: rc
           tag-prefix: release/
-      - run: echo "version=${{ steps.bump-prerelease-version.outputs.version }}" >> "$GITHUB_OUTPUT"
-  # publish release as a prerelease
-  publish-prerelease-release:
-    needs: bump-prerelease-version
-    runs-on: ubuntu-latest
-    steps:
+      # push git tag
       - run: |
-          echo "version=$VERSION"
+          echo version=$VERSION
           git tag release/$VERSION
           git push --tags
         env:
-          VERSION: ${{needs.bump-prerelease-version.outputs.prerelease-version}}
+          VERSION: ${{ steps.bump-prerelease-version.outputs.version }}
