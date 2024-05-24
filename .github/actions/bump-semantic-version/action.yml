@@ -1,0 +1,24 @@
+name: Bump Semantic Version
+description: Bump semantic version based on the most recent version extracted from Git tags
+inputs:
+  type:
+    description: Type of version number in semantic version to bump, one of [major, minor, patch]
+    default: 'patch'
+  prerelease:
+    description: Whether to bump version as a pre-release
+    default: 'true'
+  prerelease-id:
+    description: Prerelease version suffix i.e. x.y.z-rc.n
+    default: 'rc'
+  tag-prefix:
+    description: Git tag prefix to match for the most recent version
+  fallback-version:
+    description: Fallback version to use if no tags found
+    default: '0.0.0'
+outputs:
+  version:
+    description: The bump semantic version
+
+runs:
+  using: 'node20'
+  main: 'dist/index.js'

@@ -1,0 +1,32 @@
+name: Publish Release as Prerelease
+
+on:
+  workflow_dispatch:
+
+jobs:
+  # bump prerelease version from the most recent tag
+  bump-prerelease-version:
+    runs-on: ubuntu-latest
+    outputs:
+      prerelease-version: ${{ steps.bump-prerelease-version.outputs.version }}
+    steps:
+      - uses: actions/checkout@v4
+      - uses: ./.github/actions/bump-semantic-version
+        id: bump-prerelease-version
+        with:
+          type: patch
+          prerelease: true
+          prerelease-id: rc
+          tag-prefix: release/
+      - run: echo "version=${{ steps.bump-prerelease-version.outputs.version }}" >> "$GITHUB_OUTPUT"
+  # publish release as a prerelease
+  publish-prerelease-release:
+    needs: bump-prerelease-version
+    runs-on: ubuntu-latest
+    steps:
+      - run: |
+          echo "version=$VERSION"
+          git tag release/$VERSION
+          git push --tags
+        env:
+          VERSION: ${{needs.bump-prerelease-version.outputs.prerelease-version}}
