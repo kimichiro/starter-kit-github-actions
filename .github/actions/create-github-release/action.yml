@@ -1,0 +1,20 @@
+name: Create GitHub Release
+description: Create new release through GitHub REST API
+inputs:
+  tag-name:
+    description: Tag name uses to create the release
+    required: true
+  prerelease:
+    description: Whether to create release with prerelease
+    default: 'true'
+  title:
+    description: Title of the release
+  body:
+    description: Description of the release
+outputs:
+  release-url:
+    description: The GitHub url to newly created release page
+
+runs:
+  using: 'node20'
+  main: 'dist/index.js'
