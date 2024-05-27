@@ -1,23 +1,43 @@
-# Bump NPM Version
+# Bump Semantic Version
 
-Bump npm package version in semantic version convention
+Bump semantic version based on the most recent version extracted from Git tags
 
 ## Inputs
 
-### `who-to-greet`
+### `type`
 
-**Required** The name of the person to greet. Default `"World"`.
+Type of version number in semantic version to bump, one of [`major`, `minor`, `patch`]. _Default_: `patch`
+
+### `prerelease`
+
+Whether to bump version as a pre-release. _Default_: `true`
+
+### `prerelease-id`
+
+Prerelease version suffix i.e. `x.y.z-rc.n`. _Default_: `rc`
+
+### `tag-prefix`
+
+Git tag prefix to match for the most recent version.
+
+### `fallback-version`
+
+Fallback version to use if no tags found. _Default_: `0.0.0`
 
 ## Outputs
 
-### `time`
+### `version`
 
-The time we greeted you.
+The bump semantic version.
 
 ## Example usage
 
 ```yaml
 uses: ./.github/actions/bump-npm-version
 with:
-  who-to-greet: 4
+  type: minor
+  prerelease: true
+  prerelease-id: alpha
+  tag-prefix: v
+  fallback-version: 1.0.0
 ```
