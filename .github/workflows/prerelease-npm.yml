@@ -24,3 +24,5 @@ jobs:
         with:
           tag-name: release/${{ steps.bump-prerelease-version.outputs.version }}
           prerelease: true
+        env:
+          GITHUB_TOKEN: ${{ secrets.GITHUB_TOKEN }}
