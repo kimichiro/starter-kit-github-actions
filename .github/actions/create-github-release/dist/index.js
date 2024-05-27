@@ -46218,7 +46218,7 @@ async function addRemoteTag(tagName) {
     }
     await git.tag([tagName]);
     await git.push(['--tags']);
-    core.info(`Push tag '${tagName}' to remote '${remote}'`);
+    core.info(`push tag '${tagName}' to remote '${remote}'`);
     return true;
 }
 exports.addRemoteTag = addRemoteTag;
@@ -46227,7 +46227,7 @@ async function deleteRemoteTag(tagName) {
     const remoteResult = await git.remote([]);
     const remote = remoteResult?.trim();
     await git.push([remote, '--delete', tagName]);
-    core.info(`Delete tag '${tagName}' on remote '${remote}'`);
+    core.info(`delete tag '${tagName}' on remote '${remote}'`);
 }
 exports.deleteRemoteTag = deleteRemoteTag;
 async function getRemoteInfo() {
@@ -46237,13 +46237,13 @@ async function getRemoteInfo() {
         const remote = remoteResult?.trim();
         remoteResult = await git.remote(['get-url', remote]);
         const gitUrl = remoteResult?.trim();
-        core.info(`Remote git url '${gitUrl}'`);
+        core.info(`remote git url '${gitUrl}'`);
         const pattern = /(?<owner>[^/]+)\/(?<repo>[^/]+)\.git$/;
         const matches = pattern.exec(gitUrl);
         return matches?.groups;
     }
     catch (error) {
-        core.warning(`Failed to delete remote tag: ${error?.toString()}`);
+        core.warning(`failed to delete remote tag: ${error?.toString()}`);
     }
 }
 exports.getRemoteInfo = getRemoteInfo;
@@ -46306,13 +46306,13 @@ async function createRelease(tagName, prerelease, title, body) {
         const { html_url } = release.data;
         return html_url;
     }
-    catch (error) {
+    finally {
         if (needRollback) {
             try {
                 await (0, git_1.deleteRemoteTag)(tagName);
             }
-            catch (innerError) {
-                core.warning(`Failed to delete remote tag: ${innerError?.toString()}`);
+            catch (error) {
+                core.warning(`failed to delete remote tag: ${error?.toString()}`);
             }
         }
     }
@@ -46358,15 +46358,16 @@ const core = __importStar(__nccwpck_require__(2186));
 const package_json_1 = __importDefault(__nccwpck_require__(4147));
 const input_1 = __nccwpck_require__(6747);
 const github_1 = __nccwpck_require__(978);
+const output_1 = __nccwpck_require__(5768);
 async function run() {
-    core.info(`Action [${package_json_1.default.name}@${package_json_1.default.version}] started!`);
+    core.info(`action [${package_json_1.default.name}@${package_json_1.default.version}] started!`);
     try {
         const tagName = (0, input_1.getTagName)();
         const prerelease = (0, input_1.getPrerelease)();
         const title = (0, input_1.getTitle)();
         const body = (0, input_1.getBody)();
         const releaseUrl = await (0, github_1.createRelease)(tagName, prerelease, title, body);
-        core.setOutput('release-url', releaseUrl);
+        (0, output_1.setOutput)({ releaseUrl });
     }
     catch (error) {
         if (error instanceof Error) {
@@ -46473,6 +46474,50 @@ function getBody() {
     return body;
 }
 exports.getBody = getBody;
+
+
+/***/ }),
+
+/***/ 5768:
+/***/ (function(__unused_webpack_module, exports, __nccwpck_require__) {
+
+"use strict";
+
+var __createBinding = (this && this.__createBinding) || (Object.create ? (function(o, m, k, k2) {
+    if (k2 === undefined) k2 = k;
+    var desc = Object.getOwnPropertyDescriptor(m, k);
+    if (!desc || ("get" in desc ? !m.__esModule : desc.writable || desc.configurable)) {
+      desc = { enumerable: true, get: function() { return m[k]; } };
+    }
+    Object.defineProperty(o, k2, desc);
+}) : (function(o, m, k, k2) {
+    if (k2 === undefined) k2 = k;
+    o[k2] = m[k];
+}));
+var __setModuleDefault = (this && this.__setModuleDefault) || (Object.create ? (function(o, v) {
+    Object.defineProperty(o, "default", { enumerable: true, value: v });
+}) : function(o, v) {
+    o["default"] = v;
+});
+var __importStar = (this && this.__importStar) || function (mod) {
+    if (mod && mod.__esModule) return mod;
+    var result = {};
+    if (mod != null) for (var k in mod) if (k !== "default" && Object.prototype.hasOwnProperty.call(mod, k)) __createBinding(result, mod, k);
+    __setModuleDefault(result, mod);
+    return result;
+};
+Object.defineProperty(exports, "__esModule", ({ value: true }));
+exports.setOutput = void 0;
+const core = __importStar(__nccwpck_require__(2186));
+const outputNames = {
+    releaseUrl: 'release-url',
+};
+function setOutput(output) {
+    const { releaseUrl } = output;
+    core.info(`outputs.${outputNames.releaseUrl}=${JSON.stringify(releaseUrl)}`);
+    core.setOutput(outputNames.releaseUrl, releaseUrl);
+}
+exports.setOutput = setOutput;
 
 
 /***/ }),
@@ -48378,7 +48423,7 @@ module.exports = JSON.parse('{"name":"joi","description":"Object schema validati
 /***/ ((module) => {
 
 "use strict";
-module.exports = JSON.parse('{"name":"create-github-release","version":"0.0.0","description":"Create new release through GitHub REST API","main":"dist/index.js","scripts":{"prestart":"npm run build","start":"npx local-action . src/index.ts .env","build":"npx ncc build src/index.ts --source-map --license licenses.txt","lint":"npm run prettier && npm run eslint","prettier":"prettier --write ./src/**/*.ts ./__tests__/**/*.ts","eslint":"eslint ./src","test":"npx jest"},"keywords":[],"author":"","license":"UNLICENSED","dependencies":{"@actions/core":"^1.10.1","joi":"^17.13.1","octokit":"^4.0.2","simple-git":"^3.24.0"},"devDependencies":{"@babel/core":"^7.24.5","@github/local-action":"^1.5.1","@jest/globals":"^29.7.0","@types/eslint":"^8.56.10","@types/jest":"^29.5.12","@types/node":"^20.12.12","@typescript-eslint/eslint-plugin":"^7.10.0","@typescript-eslint/parser":"^7.10.0","@vercel/ncc":"^0.38.1","eslint":"^8.57.0","eslint-config-prettier":"^9.1.0","eslint-plugin-jest":"^28.5.0","jest":"^29.7.0","prettier":"^3.2.5","ts-jest":"^29.1.3","typescript":"^5.4.5"}}');
+module.exports = JSON.parse('{"name":"create-github-release","version":"0.0.0","description":"Create new release through GitHub REST API","main":"dist/index.js","private":true,"keywords":["actions","github","node"],"author":"","license":"UNLICENSED","engines":{"node":">=20"},"scripts":{"prestart":"npm run build","start":"npx local-action . src/index.ts .env","build":"npx ncc build src/index.ts --source-map --license licenses.txt","lint":"npm run prettier && npm run eslint","prettier":"prettier --write ./src/**/*.ts ./__tests__/**/*.ts","eslint":"eslint ./src","test":"npx jest"},"dependencies":{"@actions/core":"^1.10.1","joi":"^17.13.1","octokit":"^4.0.2","simple-git":"^3.24.0"},"devDependencies":{"@babel/core":"^7.24.5","@github/local-action":"^1.5.1","@jest/globals":"^29.7.0","@types/eslint":"^8.56.10","@types/jest":"^29.5.12","@types/node":"^20.12.12","@typescript-eslint/eslint-plugin":"^7.10.0","@typescript-eslint/parser":"^7.10.0","@vercel/ncc":"^0.38.1","eslint":"^8.57.0","eslint-config-prettier":"^9.1.0","eslint-plugin-jest":"^28.5.0","jest":"^29.7.0","prettier":"^3.2.5","ts-jest":"^29.1.3","typescript":"^5.4.5"}}');
 
 /***/ })
 

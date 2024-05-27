@@ -35,13 +35,13 @@ export async function createRelease(
 
         const { html_url } = release.data
         return html_url
-    } catch (error) {
+    } finally {
         if (needRollback) {
             try {
                 await deleteRemoteTag(tagName)
-            } catch (innerError) {
+            } catch (error) {
                 core.warning(
-                    `Failed to delete remote tag: ${innerError?.toString()}`,
+                    `failed to delete remote tag: ${error?.toString()}`,
                 )
             }
         }

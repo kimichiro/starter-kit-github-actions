@@ -40,13 +40,13 @@ export async function findMostRecentVersion(
     const recentVersion = semver.maxSatisfying(tags, '*', {
         includePrerelease: true,
     })
-    core.info(`tags=${JSON.stringify(tags)}`)
-
     if (recentVersion == null) {
-        core.warning(`No recent tag found at ${commit}`)
+        core.info(`no recent tag found at ${commit}`)
         return
     }
 
+    core.info(`following tags found at ${commit}`)
+    core.info(`tags=${JSON.stringify(tags)}`)
     return recentVersion
 }
 

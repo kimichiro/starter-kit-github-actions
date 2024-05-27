@@ -8,10 +8,11 @@ import {
     getTagPrefix,
     getFallbackVersion,
 } from './input'
+import { setOutput } from './output'
 import { bumpVersion } from './version'
 
 async function run(): Promise<void> {
-    core.info(`Action [${packageJson.name}@${packageJson.version}] started!`)
+    core.info(`action [${packageJson.name}@${packageJson.version}] started!`)
 
     try {
         const type = getType()
@@ -28,7 +29,7 @@ async function run(): Promise<void> {
             fallbackVersion,
         )
 
-        core.setOutput('version', version)
+        setOutput({ version })
     } catch (error) {
         if (error instanceof Error) {
             core.setFailed(error.message)

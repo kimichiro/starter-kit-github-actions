@@ -1,3 +1,11 @@
+[![Bump Semantic Version][bump-semantic-version-badge]][bump-semantic-version-link]
+[![Create GitHub Release][create-github-release-badge]][create-github-release-link]
+
+[bump-semantic-version-badge]: https://img.shields.io/badge/bump--semantic--version-0.0.0-white?logo=githubactions&logoColor=white&labelColor=2088FF
+[bump-semantic-version-link]: https://github.com/kimichiro/starter-kit-github-actions/tree/feature/deployment/.github/actions/bump-semantic-version
+[create-github-release-badge]: https://img.shields.io/badge/create--github--release-0.0.0-white?logo=githubactions&logoColor=white&labelColor=2088FF
+[create-github-release-link]: https://github.com/kimichiro/starter-kit-github-actions/tree/feature/deployment/.github/actions/create-github-release
+
 # Github Actions Starter Kit
 
 Provide reusable workflow for git development pipeline

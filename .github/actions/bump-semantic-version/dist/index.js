@@ -48749,9 +48749,10 @@ Object.defineProperty(exports, "__esModule", ({ value: true }));
 const core = __importStar(__nccwpck_require__(2186));
 const package_json_1 = __importDefault(__nccwpck_require__(4147));
 const input_1 = __nccwpck_require__(6747);
+const output_1 = __nccwpck_require__(5768);
 const version_1 = __nccwpck_require__(1946);
 async function run() {
-    core.info(`Action [${package_json_1.default.name}@${package_json_1.default.version}] started!`);
+    core.info(`action [${package_json_1.default.name}@${package_json_1.default.version}] started!`);
     try {
         const type = (0, input_1.getType)();
         const preRelease = (0, input_1.getPreRelease)();
@@ -48759,7 +48760,7 @@ async function run() {
         const tagPrefix = (0, input_1.getTagPrefix)();
         const fallbackVersion = (0, input_1.getFallbackVersion)();
         const version = await (0, version_1.bumpVersion)(type, preRelease, preReleaseId, tagPrefix, fallbackVersion);
-        core.setOutput('version', version);
+        (0, output_1.setOutput)({ version });
     }
     catch (error) {
         if (error instanceof Error) {
@@ -48856,39 +48857,83 @@ const fallbackVersionSchema = joi_1.default
 });
 function getType() {
     const type = core.getInput(inputNames.type);
-    core.info(`inputs.type=${JSON.stringify(type)}`);
+    core.info(`inputs.${inputNames.type}=${JSON.stringify(type)}`);
     joi_1.default.assert(type, typeSchema);
     return type;
 }
 exports.getType = getType;
 function getPreRelease() {
     const prerelease = core.getInput(inputNames.prerelease);
-    core.info(`inputs.prerelease=${JSON.stringify(prerelease)}`);
+    core.info(`inputs.${inputNames.prerelease}=${JSON.stringify(prerelease)}`);
     joi_1.default.assert(prerelease, prereleaseSchema);
     return Boolean(prerelease);
 }
 exports.getPreRelease = getPreRelease;
 function getPreReleaseId() {
     const prereleaseId = core.getInput(inputNames.prereleaseId);
-    core.info(`inputs.prerelease-id=${JSON.stringify(prereleaseId)}`);
+    core.info(`inputs.${inputNames.prereleaseId}=${JSON.stringify(prereleaseId)}`);
     joi_1.default.assert(prereleaseId, prereleaseIdSchema);
     return prereleaseId;
 }
 exports.getPreReleaseId = getPreReleaseId;
 function getTagPrefix() {
     const tagPrefix = core.getInput(inputNames.tagPrefix);
-    core.info(`inputs.tag-prefix=${JSON.stringify(tagPrefix)}`);
+    core.info(`inputs.${inputNames.tagPrefix}=${JSON.stringify(tagPrefix)}`);
     joi_1.default.assert(tagPrefix, tagPrefixSchema);
     return tagPrefix;
 }
 exports.getTagPrefix = getTagPrefix;
 function getFallbackVersion() {
     const fallbackVersion = core.getInput(inputNames.fallbackVersion);
-    core.info(`inputs.fallback-version=${JSON.stringify(fallbackVersion)}`);
+    core.info(`inputs.${inputNames.fallbackVersion}=${JSON.stringify(fallbackVersion)}`);
     joi_1.default.assert(fallbackVersion, fallbackVersionSchema);
     return fallbackVersion;
 }
 exports.getFallbackVersion = getFallbackVersion;
+
+
+/***/ }),
+
+/***/ 5768:
+/***/ (function(__unused_webpack_module, exports, __nccwpck_require__) {
+
+"use strict";
+
+var __createBinding = (this && this.__createBinding) || (Object.create ? (function(o, m, k, k2) {
+    if (k2 === undefined) k2 = k;
+    var desc = Object.getOwnPropertyDescriptor(m, k);
+    if (!desc || ("get" in desc ? !m.__esModule : desc.writable || desc.configurable)) {
+      desc = { enumerable: true, get: function() { return m[k]; } };
+    }
+    Object.defineProperty(o, k2, desc);
+}) : (function(o, m, k, k2) {
+    if (k2 === undefined) k2 = k;
+    o[k2] = m[k];
+}));
+var __setModuleDefault = (this && this.__setModuleDefault) || (Object.create ? (function(o, v) {
+    Object.defineProperty(o, "default", { enumerable: true, value: v });
+}) : function(o, v) {
+    o["default"] = v;
+});
+var __importStar = (this && this.__importStar) || function (mod) {
+    if (mod && mod.__esModule) return mod;
+    var result = {};
+    if (mod != null) for (var k in mod) if (k !== "default" && Object.prototype.hasOwnProperty.call(mod, k)) __createBinding(result, mod, k);
+    __setModuleDefault(result, mod);
+    return result;
+};
+Object.defineProperty(exports, "__esModule", ({ value: true }));
+exports.setOutput = void 0;
+const core = __importStar(__nccwpck_require__(2186));
+const outputNames = {
+    version: 'version',
+};
+function setOutput(output) {
+    const { version } = output;
+    core.info(`outputs.${outputNames.version}=${JSON.stringify(version)}`);
+    core.setOutput(outputNames.version, version);
+}
+exports.setOutput = setOutput;
 
 
 /***/ }),
@@ -48952,11 +48997,12 @@ async function findMostRecentVersion(tagPrefix) {
     const recentVersion = semver_1.default.maxSatisfying(tags, '*', {
         includePrerelease: true,
     });
-    core.info(`tags=${JSON.stringify(tags)}`);
     if (recentVersion == null) {
-        core.warning(`No recent tag found at ${commit}`);
+        core.info(`no recent tag found at ${commit}`);
         return;
     }
+    core.info(`following tags found at ${commit}`);
+    core.info(`tags=${JSON.stringify(tags)}`);
     return recentVersion;
 }
 exports.findMostRecentVersion = findMostRecentVersion;
@@ -50851,7 +50897,7 @@ module.exports = JSON.parse('{"name":"joi","description":"Object schema validati
 /***/ ((module) => {
 
 "use strict";
-module.exports = JSON.parse('{"name":"bump-semantic-version","version":"0.0.0","description":"Bump semantic version based on the most recent version extracted from Git tags","main":"dist/index.js","scripts":{"prestart":"npm run build","start":"npx local-action . src/index.ts .env","build":"npx ncc build src/index.ts --source-map --license licenses.txt","lint":"npm run prettier && npm run eslint","prettier":"prettier --write ./src/**/*.ts ./__tests__/**/*.ts","eslint":"eslint ./src","test":"npx jest"},"keywords":[],"author":"","license":"UNLICENSED","dependencies":{"@actions/core":"^1.10.1","joi":"^17.13.1","semver":"^7.6.2","simple-git":"^3.24.0"},"devDependencies":{"@babel/core":"^7.24.5","@github/local-action":"^1.5.1","@jest/globals":"^29.7.0","@types/eslint":"^8.56.10","@types/jest":"^29.5.12","@types/node":"^20.12.12","@types/semver":"^7.5.8","@typescript-eslint/eslint-plugin":"^7.10.0","@typescript-eslint/parser":"^7.10.0","@vercel/ncc":"^0.38.1","eslint":"^8.57.0","eslint-config-prettier":"^9.1.0","eslint-plugin-jest":"^28.5.0","jest":"^29.7.0","prettier":"^3.2.5","ts-jest":"^29.1.3","typescript":"^5.4.5"}}');
+module.exports = JSON.parse('{"name":"bump-semantic-version","version":"0.0.0","description":"Bump semantic version based on the most recent version extracted from Git tags","main":"dist/index.js","private":true,"keywords":["actions","github","node"],"author":"","license":"UNLICENSED","engines":{"node":">=20"},"scripts":{"prestart":"npm run build","start":"npx local-action . src/index.ts .env","build":"npx ncc build src/index.ts --source-map --license licenses.txt","lint":"npm run prettier && npm run eslint","prettier":"prettier --write ./src/**/*.ts ./__tests__/**/*.ts","eslint":"eslint ./src","test":"npx jest"},"dependencies":{"@actions/core":"^1.10.1","joi":"^17.13.1","semver":"^7.6.2","simple-git":"^3.24.0"},"devDependencies":{"@babel/core":"^7.24.5","@github/local-action":"^1.5.1","@jest/globals":"^29.7.0","@types/eslint":"^8.56.10","@types/jest":"^29.5.12","@types/node":"^20.12.12","@types/semver":"^7.5.8","@typescript-eslint/eslint-plugin":"^7.10.0","@typescript-eslint/parser":"^7.10.0","@vercel/ncc":"^0.38.1","eslint":"^8.57.0","eslint-config-prettier":"^9.1.0","eslint-plugin-jest":"^28.5.0","jest":"^29.7.0","prettier":"^3.2.5","ts-jest":"^29.1.3","typescript":"^5.4.5"}}');
 
 /***/ })
 
