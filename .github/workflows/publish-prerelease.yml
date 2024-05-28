@@ -27,6 +27,8 @@ jobs:
       contents: write
     steps:
       - uses: actions/checkout@v4
+        with:
+          fetch-tags: true
       # bump semantic version as prerelease
       - uses: ./.github/actions/bump-semantic-version
         id: bump-prerelease-version

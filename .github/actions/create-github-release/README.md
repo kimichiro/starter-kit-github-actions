@@ -12,6 +12,8 @@ Create new release through GitHub REST API by following instruction below.
 
 ```yml
 - uses: actions/checkout@v4
+  with:
+    fetch-tags: true
 - uses: ./.github/actions/create-github-release
   with:
     tag-name: release/1.2.3-rc.4
