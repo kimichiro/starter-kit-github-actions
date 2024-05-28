@@ -1,7 +1,7 @@
 **_Changes log:_**
 
-- Do something * #<issue_number>
-- Do another thing * #issue_number
+- Do something #issue_number
+- Do another thing #issue_number
 - ...
 
 > [!TIP]
