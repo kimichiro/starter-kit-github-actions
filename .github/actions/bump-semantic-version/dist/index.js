@@ -48991,6 +48991,7 @@ async function findMostRecentVersion(tagPrefix) {
     ]);
     const commit = describeResult?.trim();
     const tagResult = await git.tag(['--points-at', commit]);
+    core.debug(`tag-result: ${JSON.stringify(tagResult)}`);
     const tags = tagResult
         .split(/\s/)
         .flatMap((tagName) => tagPrefix?.length > 0
@@ -48998,6 +48999,7 @@ async function findMostRecentVersion(tagPrefix) {
             ? tagName.substring(tagPrefix.length)
             : []
         : tagName);
+    core.debug(`tags: ${JSON.stringify(tags)}`);
     const recentVersion = semver_1.default.maxSatisfying(tags, '*', {
         includePrerelease: true,
     });
@@ -49005,8 +49007,7 @@ async function findMostRecentVersion(tagPrefix) {
         core.info(`no recent tag found at ${commit}`);
         return;
     }
-    core.info(`following tags found at ${commit}`);
-    core.info(`tags=${JSON.stringify(tags)}`);
+    core.info(`recent tag '${recentVersion}' found at ${commit}`);
     return recentVersion;
 }
 exports.findMostRecentVersion = findMostRecentVersion;

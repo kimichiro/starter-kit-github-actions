@@ -18,6 +18,7 @@ export async function findMostRecentVersion(tagPrefix: string): Promise<string |
 
     const commit = describeResult?.trim()
     const tagResult = await git.tag(['--points-at', commit])
+    core.debug(`tag-result: ${JSON.stringify(tagResult)}`)
 
     const tags = tagResult
         .split(/\s/)
@@ -28,6 +29,7 @@ export async function findMostRecentVersion(tagPrefix: string): Promise<string |
                     : []
                 : tagName,
         )
+    core.debug(`tags: ${JSON.stringify(tags)}`)
 
     const recentVersion = semver.maxSatisfying(tags, '*', {
         includePrerelease: true,
@@ -37,8 +39,7 @@ export async function findMostRecentVersion(tagPrefix: string): Promise<string |
         return
     }
 
-    core.info(`following tags found at ${commit}`)
-    core.info(`tags=${JSON.stringify(tags)}`)
+    core.info(`recent tag '${recentVersion}' found at ${commit}`)
     return recentVersion
 }
 
