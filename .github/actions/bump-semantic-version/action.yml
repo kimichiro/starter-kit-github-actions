@@ -6,7 +6,7 @@ inputs:
     default: 'patch'
   prerelease:
     description: Whether to bump version as a pre-release
-    default: 'true'
+    default: 'false'
   prerelease-id:
     description: Prerelease version suffix i.e. x.y.z-rc.n
     default: 'rc'

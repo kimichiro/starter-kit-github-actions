@@ -1,26 +1,25 @@
 import * as core from '@actions/core'
 
 import packageJson from 'package.json'
-import { getType, getPreRelease, getPreReleaseId, getTagPrefix, getFallbackVersion } from './input'
+import { getTagName, getPrerelease, getTitle, getBody } from './input'
+import { createRelease } from './github'
 import { setOutput } from './output'
-import { bumpVersion } from './version'
 
 async function run(): Promise<void> {
     core.info(`action [${packageJson.name}@${packageJson.version}] started!`)
 
     try {
         core.startGroup('inputs')
-        const type = getType()
-        const preRelease = getPreRelease()
-        const preReleaseId = getPreReleaseId()
-        const tagPrefix = getTagPrefix()
-        const fallbackVersion = getFallbackVersion()
+        const tagName = getTagName()
+        const prerelease = getPrerelease()
+        const title = getTitle()
+        const body = getBody()
         core.endGroup()
 
-        const version = await bumpVersion(type, preRelease, preReleaseId, tagPrefix, fallbackVersion)
+        const releaseUrl = await createRelease(tagName, prerelease, title, body)
 
         core.startGroup('outputs')
-        setOutput({ version })
+        setOutput({ releaseUrl })
         core.endGroup()
     } catch (error) {
         if (error instanceof Error) {

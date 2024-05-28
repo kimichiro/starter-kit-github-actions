@@ -1,0 +1,44 @@
+name: Publish Prerelease
+
+on:
+  pull_request:
+    types: closed
+    branches: main
+    paths:
+      - '!.github/**'
+      - '!.gitignore'
+      - '!assets/**'
+  workflow_dispatch:
+    inputs:
+      release-type:
+        description: Release Type
+        required: true
+        default: patch
+        type: choice
+        options:
+          - major
+          - minor
+          - patch
+
+jobs:
+  publish-release:
+    runs-on: ubuntu-latest
+    permissions:
+      contents: write
+    steps:
+      - uses: actions/checkout@v4
+      # bump semantic version as prerelease
+      - uses: ./.github/actions/bump-semantic-version
+        id: bump-prerelease-version
+        with:
+          type: patch
+          prerelease: true
+          tag-prefix: release/
+      # push git tag and create GitHub prerelease
+      - uses: ./.github/actions/create-github-release
+        id: create-prerelease-release
+        with:
+          tag-name: release/${{ steps.bump-prerelease-version.outputs.version }}
+          prerelease: true
+        env:
+          GITHUB_TOKEN: ${{ secrets.GITHUB_TOKEN }}
