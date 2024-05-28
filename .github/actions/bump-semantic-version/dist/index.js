@@ -48833,7 +48833,7 @@ const typeSchema = joi_1.default
 });
 const prereleaseSchema = joi_1.default
     .boolean()
-    .default(true)
+    .default(false)
     .messages({
     'boolean.base': `'${inputNames.prerelease}' should be one of true or false`,
 });

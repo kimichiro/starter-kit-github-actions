@@ -9,6 +9,7 @@ Bump semantic version based on the most recent version extracted from Git tags.
 ## Usage
 
 ```yml
+- uses: actions/checkout@v4
 - uses: ./.github/actions/bump-npm-version
   with:
     type: minor

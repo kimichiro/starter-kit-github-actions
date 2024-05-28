@@ -17,14 +17,8 @@ describe('getRemoteInfo()', () => {
     test.each([
         ['', undefined],
         ['https://github.com/sample-owner/sample-repo', undefined],
-        [
-            'https://github.com/sample-owner/sample-repo.git',
-            { owner: 'sample-owner', repo: 'sample-repo' },
-        ],
-        [
-            '   https://github.com/sample-owner/sample-repo.git   ',
-            { owner: 'sample-owner', repo: 'sample-repo' },
-        ],
+        ['https://github.com/sample-owner/sample-repo.git', { owner: 'sample-owner', repo: 'sample-repo' }],
+        ['   https://github.com/sample-owner/sample-repo.git   ', { owner: 'sample-owner', repo: 'sample-repo' }],
     ])('when (arg0=%p) then returns %p', async (gitUrl, expected) => {
         mockSimpleGit.remote.mockResolvedValueOnce('origin')
         mockSimpleGit.remote.mockResolvedValueOnce(gitUrl as string)

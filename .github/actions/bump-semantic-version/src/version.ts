@@ -1,17 +1,9 @@
 import * as core from '@actions/core'
 import semver from 'semver'
 import { simpleGit } from 'simple-git'
-import {
-    PrereleaseId,
-    Prerelease,
-    TagPrefix,
-    Type,
-    FallbackVersion,
-} from './input'
+import { PrereleaseId, Prerelease, TagPrefix, Type, FallbackVersion } from './input'
 
-export async function findMostRecentVersion(
-    tagPrefix: string,
-): Promise<string | undefined> {
+export async function findMostRecentVersion(tagPrefix: string): Promise<string | undefined> {
     const git = simpleGit()
 
     const describeResult = await git.raw([
@@ -63,12 +55,7 @@ export async function bumpVersion(
     const isPrerelease = semver.prerelease(baseVersion) != null
 
     const bumpVersion = prerelease
-        ? semver.inc(
-              baseVersion,
-              isPrerelease ? 'prerelease' : `pre${type}`,
-              false,
-              prereleaseId,
-          )
+        ? semver.inc(baseVersion, isPrerelease ? 'prerelease' : `pre${type}`, false, prereleaseId)
         : semver.inc(baseVersion, type)
 
     return bumpVersion ?? undefined

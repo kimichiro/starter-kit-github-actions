@@ -14,7 +14,7 @@ const tagNameSchema = joi.string().messages({
 })
 const prereleaseSchema = joi
     .boolean()
-    .default(true)
+    .default(false)
     .messages({
         'boolean.base': `'${inputNames.prerelease}' should be one of true or false`,
     })

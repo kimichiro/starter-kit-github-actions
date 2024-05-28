@@ -20,7 +20,7 @@ const typeSchema = joi
     })
 const prereleaseSchema = joi
     .boolean()
-    .default(true)
+    .default(false)
     .messages({
         'boolean.base': `'${inputNames.prerelease}' should be one of true or false`,
     })
@@ -83,9 +83,7 @@ export function getTagPrefix(): TagPrefix {
 
 export function getFallbackVersion(): FallbackVersion {
     const fallbackVersion = core.getInput(inputNames.fallbackVersion)
-    core.info(
-        `${inputNames.fallbackVersion}: ${JSON.stringify(fallbackVersion)}`,
-    )
+    core.info(`${inputNames.fallbackVersion}: ${JSON.stringify(fallbackVersion)}`)
     joi.assert(fallbackVersion, fallbackVersionSchema)
     return fallbackVersion
 }

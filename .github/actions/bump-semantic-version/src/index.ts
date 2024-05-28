@@ -1,13 +1,7 @@
 import * as core from '@actions/core'
 
 import packageJson from 'package.json'
-import {
-    getType,
-    getPreRelease,
-    getPreReleaseId,
-    getTagPrefix,
-    getFallbackVersion,
-} from './input'
+import { getType, getPreRelease, getPreReleaseId, getTagPrefix, getFallbackVersion } from './input'
 import { setOutput } from './output'
 import { bumpVersion } from './version'
 
@@ -23,13 +17,7 @@ async function run(): Promise<void> {
         const fallbackVersion = getFallbackVersion()
         core.endGroup()
 
-        const version = await bumpVersion(
-            type,
-            preRelease,
-            preReleaseId,
-            tagPrefix,
-            fallbackVersion,
-        )
+        const version = await bumpVersion(type, preRelease, preReleaseId, tagPrefix, fallbackVersion)
 
         core.startGroup('outputs')
         setOutput({ version })

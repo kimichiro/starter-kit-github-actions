@@ -40,9 +40,7 @@ export async function createRelease(
             try {
                 await deleteRemoteTag(tagName)
             } catch (error) {
-                core.warning(
-                    `failed to delete remote tag: ${error?.toString()}`,
-                )
+                core.warning(`failed to delete remote tag: ${error?.toString()}`)
             }
         }
     }

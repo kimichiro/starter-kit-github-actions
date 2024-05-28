@@ -3,17 +3,20 @@
 Create new release through GitHub REST API by following instruction below.
 - Push new tag `tag-name` onto origin (skip if exists).
 - Create new release with generated release notes.
-- Delete tag if push previously and some step failure.
+- On any failure, delete tag if push previously.
 
 ## Usage
 
 ```yml
+- uses: actions/checkout@v4
 - uses: ./.github/actions/create-github-release
   with:
     tag-name: release/1.2.3-rc.4
     prerelease: true
     title: Release title instead of tag name
     body: Description of the release
+  env:
+    GITHUB_TOKEN: ${{ secrets.GITHUB_TOKEN }}
 ```
 
 ## Inputs
@@ -26,3 +29,7 @@ Create new release through GitHub REST API by following instruction below.
 ## Outputs
 
 - `release-url` - The GitHub url to newly created release page.
+
+## Env
+
+- `GITHUB_TOKEN` - The authentication token to access GitHub REST API (Releases)

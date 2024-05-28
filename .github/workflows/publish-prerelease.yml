@@ -1,7 +1,24 @@
 name: Publish Prerelease
 
 on:
+  pull_request:
+    types: closed
+    branches: main
+    paths:
+      - '!.github/**'
+      - '!.gitignore'
+      - '!assets/**'
   workflow_dispatch:
+    inputs:
+      release-type:
+        description: Release Type
+        required: true
+        default: patch
+        type: choice
+        options:
+          - major
+          - minor
+          - patch
 
 jobs:
   publish-release:
@@ -10,13 +27,12 @@ jobs:
       contents: write
     steps:
       - uses: actions/checkout@v4
-      # bump version as prerelease
+      # bump semantic version as prerelease
       - uses: ./.github/actions/bump-semantic-version
         id: bump-prerelease-version
         with:
           type: patch
           prerelease: true
-          prerelease-id: rc
           tag-prefix: release/
       # push git tag and create GitHub prerelease
       - uses: ./.github/actions/create-github-release

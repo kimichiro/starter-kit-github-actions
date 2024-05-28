@@ -47,60 +47,12 @@ const testCases = {
         ['minor', true, 'rc', 'release/', '0.0.0', '1.2.3-rc.4', '1.2.3-rc.5'],
         ['major', true, 'rc', 'release/', '0.0.0', '1.2.3-rc.4', '1.2.3-rc.5'],
 
-        [
-            'patch',
-            true,
-            'rc',
-            'release/',
-            '0.0.0',
-            '1.0.0-alpha.0',
-            '1.0.0-rc.0',
-        ],
-        [
-            'minor',
-            true,
-            'rc',
-            'release/',
-            '0.0.0',
-            '1.0.0-alpha.0',
-            '1.0.0-rc.0',
-        ],
-        [
-            'major',
-            true,
-            'rc',
-            'release/',
-            '0.0.0',
-            '1.0.0-alpha.0',
-            '1.0.0-rc.0',
-        ],
-        [
-            'patch',
-            true,
-            'rc',
-            'release/',
-            '0.0.0',
-            '1.2.3-alpha.4',
-            '1.2.3-rc.0',
-        ],
-        [
-            'minor',
-            true,
-            'rc',
-            'release/',
-            '0.0.0',
-            '1.2.3-alpha.4',
-            '1.2.3-rc.0',
-        ],
-        [
-            'major',
-            true,
-            'rc',
-            'release/',
-            '0.0.0',
-            '1.2.3-alpha.4',
-            '1.2.3-rc.0',
-        ],
+        ['patch', true, 'rc', 'release/', '0.0.0', '1.0.0-alpha.0', '1.0.0-rc.0'],
+        ['minor', true, 'rc', 'release/', '0.0.0', '1.0.0-alpha.0', '1.0.0-rc.0'],
+        ['major', true, 'rc', 'release/', '0.0.0', '1.0.0-alpha.0', '1.0.0-rc.0'],
+        ['patch', true, 'rc', 'release/', '0.0.0', '1.2.3-alpha.4', '1.2.3-rc.0'],
+        ['minor', true, 'rc', 'release/', '0.0.0', '1.2.3-alpha.4', '1.2.3-rc.0'],
+        ['major', true, 'rc', 'release/', '0.0.0', '1.2.3-alpha.4', '1.2.3-rc.0'],
         ['patch', true, 'rc', 'release/', '0.0.0', '1.0.0-alpha', '1.0.0-rc.0'],
         ['minor', true, 'rc', 'release/', '0.0.0', '1.0.0-alpha', '1.0.0-rc.0'],
         ['major', true, 'rc', 'release/', '0.0.0', '1.0.0-alpha', '1.0.0-rc.0'],
@@ -157,18 +109,8 @@ describe('findMostRecentVersion()', () => {
 describe('bumpVersion()', () => {
     test.each(testCases.bumpVersion)(
         'when (arg0=%p, arg1=%p, arg2=%p, arg3=%p, arg4=%p) and the most recent version is %p then returns %p',
-        async (
-            type,
-            prerelease,
-            prereleaseId,
-            tagPrefix,
-            fallbackVersion,
-            recentVersion,
-            expected,
-        ) => {
-            jest.spyOn(version, 'findMostRecentVersion').mockResolvedValueOnce(
-                recentVersion as string | undefined,
-            )
+        async (type, prerelease, prereleaseId, tagPrefix, fallbackVersion, recentVersion, expected) => {
+            jest.spyOn(version, 'findMostRecentVersion').mockResolvedValueOnce(recentVersion as string | undefined)
 
             const result = await bumpVersion(
                 type as Type,

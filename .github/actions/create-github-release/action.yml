@@ -6,7 +6,7 @@ inputs:
     required: true
   prerelease:
     description: Whether to create release with prerelease
-    default: 'true'
+    default: 'false'
   title:
     description: Title of the release
   body:
