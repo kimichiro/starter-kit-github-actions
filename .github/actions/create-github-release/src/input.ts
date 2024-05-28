@@ -38,28 +38,28 @@ export type Body = string
 
 export function getTagName(): TagName {
     const tagName = core.getInput(inputNames.tagName)
-    core.info(`inputs.${inputNames.tagName}=${JSON.stringify(tagName)}`)
+    core.info(`${inputNames.tagName}: ${JSON.stringify(tagName)}`)
     joi.assert(tagName, tagNameSchema)
     return tagName as TagName
 }
 
 export function getPrerelease(): Prerelease {
-    const prerelease = core.getInput(inputNames.prerelease)
-    core.info(`inputs.${inputNames.prerelease}=${JSON.stringify(prerelease)}`)
+    const prerelease = core.getBooleanInput(inputNames.prerelease)
+    core.info(`${inputNames.prerelease}: ${JSON.stringify(prerelease)}`)
     joi.assert(prerelease, prereleaseSchema)
-    return Boolean(prerelease)
+    return prerelease
 }
 
 export function getTitle(): Title {
     const title = core.getInput(inputNames.title)
-    core.info(`inputs.${inputNames.title}=${JSON.stringify(title)}`)
+    core.info(`${inputNames.title}: ${JSON.stringify(title)}`)
     joi.assert(title, titleSchema)
     return title
 }
 
 export function getBody(): Body {
     const body = core.getInput(inputNames.body)
-    core.info(`inputs.${inputNames.body}=${JSON.stringify(body)}`)
+    core.info(`${inputNames.body}: ${JSON.stringify(body)}`)
     joi.assert(body, bodySchema)
     return body
 }

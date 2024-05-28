@@ -1,7 +1,7 @@
 import * as core from '@actions/core'
 
 import { Prerelease, TagName, Title, Body } from './input'
-import { addRemoteTag, deleteRemoteTag, getRemoteInfo } from './git'
+import { addRemoteTag, deleteRemoteTag } from './git'
 
 export async function createRelease(
     tagName: TagName,
@@ -13,25 +13,25 @@ export async function createRelease(
     try {
         needRollback = await addRemoteTag(tagName)
 
-        const remoteInfo = await getRemoteInfo()
-        if (remoteInfo == null) {
-            return
-        }
+        const owner = process.env['GITHUB_REPOSITORY_OWNER'] ?? ''
+        const repository = process.env['GITHUB_REPOSITORY'] ?? ''
+        const token = process.env['GITHUB_TOKEN'] ?? ''
 
-        const githubToken = process.env['GITHUB_TOKEN']
+        const repo = repository.split('/')[1]
 
         const { Octokit } = await import('octokit')
-        const octokit = new Octokit({ auth: githubToken })
+        const octokit = new Octokit({ auth: token, log: console })
 
         const release = await octokit.rest.repos.createRelease({
-            owner: remoteInfo.owner,
-            repo: remoteInfo.repo,
+            owner,
+            repo,
             tag_name: tagName,
             ...(title != null ? { name: title } : {}),
             ...(body != null ? { body: body } : {}),
             prerelease: prerelease,
             generate_release_notes: true,
         })
+        needRollback = release.data == null
 
         const { html_url } = release.data
         return html_url

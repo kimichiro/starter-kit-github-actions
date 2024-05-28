@@ -46204,7 +46204,7 @@ var __importStar = (this && this.__importStar) || function (mod) {
     return result;
 };
 Object.defineProperty(exports, "__esModule", ({ value: true }));
-exports.getRemoteInfo = exports.deleteRemoteTag = exports.addRemoteTag = void 0;
+exports.deleteRemoteTag = exports.addRemoteTag = void 0;
 const core = __importStar(__nccwpck_require__(2186));
 const simple_git_1 = __nccwpck_require__(9103);
 async function addRemoteTag(tagName) {
@@ -46230,23 +46230,6 @@ async function deleteRemoteTag(tagName) {
     core.info(`delete tag '${tagName}' on remote '${remote}'`);
 }
 exports.deleteRemoteTag = deleteRemoteTag;
-async function getRemoteInfo() {
-    const git = (0, simple_git_1.simpleGit)();
-    try {
-        let remoteResult = await git.remote([]);
-        const remote = remoteResult?.trim();
-        remoteResult = await git.remote(['get-url', remote]);
-        const gitUrl = remoteResult?.trim();
-        core.info(`remote git url '${gitUrl}'`);
-        const pattern = /(?<owner>[^/]+)\/(?<repo>[^/]+)\.git$/;
-        const matches = pattern.exec(gitUrl);
-        return matches?.groups;
-    }
-    catch (error) {
-        core.warning(`failed to delete remote tag: ${error?.toString()}`);
-    }
-}
-exports.getRemoteInfo = getRemoteInfo;
 
 
 /***/ }),
@@ -46287,22 +46270,22 @@ async function createRelease(tagName, prerelease, title, body) {
     let needRollback = false;
     try {
         needRollback = await (0, git_1.addRemoteTag)(tagName);
-        const remoteInfo = await (0, git_1.getRemoteInfo)();
-        if (remoteInfo == null) {
-            return;
-        }
-        const githubToken = process.env['GITHUB_TOKEN'];
+        const owner = process.env['GITHUB_REPOSITORY_OWNER'] ?? '';
+        const repository = process.env['GITHUB_REPOSITORY'] ?? '';
+        const token = process.env['GITHUB_TOKEN'] ?? '';
+        const repo = repository.split('/')[1];
         const { Octokit } = await __nccwpck_require__.e(/* import() */ 840).then(__nccwpck_require__.bind(__nccwpck_require__, 4840));
-        const octokit = new Octokit({ auth: githubToken });
+        const octokit = new Octokit({ auth: token, log: console });
         const release = await octokit.rest.repos.createRelease({
-            owner: remoteInfo.owner,
-            repo: remoteInfo.repo,
+            owner,
+            repo,
             tag_name: tagName,
             ...(title != null ? { name: title } : {}),
             ...(body != null ? { body: body } : {}),
             prerelease: prerelease,
             generate_release_notes: true,
         });
+        needRollback = release.data == null;
         const { html_url } = release.data;
         return html_url;
     }
@@ -46362,16 +46345,20 @@ const output_1 = __nccwpck_require__(5768);
 async function run() {
     core.info(`action [${package_json_1.default.name}@${package_json_1.default.version}] started!`);
     try {
+        core.startGroup('inputs');
         const tagName = (0, input_1.getTagName)();
         const prerelease = (0, input_1.getPrerelease)();
         const title = (0, input_1.getTitle)();
         const body = (0, input_1.getBody)();
+        core.endGroup();
         const releaseUrl = await (0, github_1.createRelease)(tagName, prerelease, title, body);
+        core.startGroup('outputs');
         (0, output_1.setOutput)({ releaseUrl });
+        core.endGroup();
     }
     catch (error) {
         if (error instanceof Error) {
-            core.setFailed(error.message);
+            core.setFailed(error);
         }
         else {
             core.setFailed(JSON.stringify(error));
@@ -46448,28 +46435,28 @@ const bodySchema = joi_1.default
 });
 function getTagName() {
     const tagName = core.getInput(inputNames.tagName);
-    core.info(`inputs.${inputNames.tagName}=${JSON.stringify(tagName)}`);
+    core.info(`${inputNames.tagName}: ${JSON.stringify(tagName)}`);
     joi_1.default.assert(tagName, tagNameSchema);
     return tagName;
 }
 exports.getTagName = getTagName;
 function getPrerelease() {
-    const prerelease = core.getInput(inputNames.prerelease);
-    core.info(`inputs.${inputNames.prerelease}=${JSON.stringify(prerelease)}`);
+    const prerelease = core.getBooleanInput(inputNames.prerelease);
+    core.info(`${inputNames.prerelease}: ${JSON.stringify(prerelease)}`);
     joi_1.default.assert(prerelease, prereleaseSchema);
-    return Boolean(prerelease);
+    return prerelease;
 }
 exports.getPrerelease = getPrerelease;
 function getTitle() {
     const title = core.getInput(inputNames.title);
-    core.info(`inputs.${inputNames.title}=${JSON.stringify(title)}`);
+    core.info(`${inputNames.title}: ${JSON.stringify(title)}`);
     joi_1.default.assert(title, titleSchema);
     return title;
 }
 exports.getTitle = getTitle;
 function getBody() {
     const body = core.getInput(inputNames.body);
-    core.info(`inputs.${inputNames.body}=${JSON.stringify(body)}`);
+    core.info(`${inputNames.body}: ${JSON.stringify(body)}`);
     joi_1.default.assert(body, bodySchema);
     return body;
 }
@@ -46514,7 +46501,7 @@ const outputNames = {
 };
 function setOutput(output) {
     const { releaseUrl } = output;
-    core.info(`outputs.${outputNames.releaseUrl}=${JSON.stringify(releaseUrl)}`);
+    core.info(`${outputNames.releaseUrl}: ${JSON.stringify(releaseUrl)}`);
     core.setOutput(outputNames.releaseUrl, releaseUrl);
 }
 exports.setOutput = setOutput;

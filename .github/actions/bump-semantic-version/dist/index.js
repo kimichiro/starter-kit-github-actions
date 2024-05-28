@@ -48754,17 +48754,21 @@ const version_1 = __nccwpck_require__(1946);
 async function run() {
     core.info(`action [${package_json_1.default.name}@${package_json_1.default.version}] started!`);
     try {
+        core.startGroup('inputs');
         const type = (0, input_1.getType)();
         const preRelease = (0, input_1.getPreRelease)();
         const preReleaseId = (0, input_1.getPreReleaseId)();
         const tagPrefix = (0, input_1.getTagPrefix)();
         const fallbackVersion = (0, input_1.getFallbackVersion)();
+        core.endGroup();
         const version = await (0, version_1.bumpVersion)(type, preRelease, preReleaseId, tagPrefix, fallbackVersion);
+        core.startGroup('outputs');
         (0, output_1.setOutput)({ version });
+        core.endGroup();
     }
     catch (error) {
         if (error instanceof Error) {
-            core.setFailed(error.message);
+            core.setFailed(error);
         }
         else {
             core.setFailed(JSON.stringify(error));
@@ -48857,35 +48861,35 @@ const fallbackVersionSchema = joi_1.default
 });
 function getType() {
     const type = core.getInput(inputNames.type);
-    core.info(`inputs.${inputNames.type}=${JSON.stringify(type)}`);
+    core.info(`${inputNames.type}: ${JSON.stringify(type)}`);
     joi_1.default.assert(type, typeSchema);
     return type;
 }
 exports.getType = getType;
 function getPreRelease() {
-    const prerelease = core.getInput(inputNames.prerelease);
-    core.info(`inputs.${inputNames.prerelease}=${JSON.stringify(prerelease)}`);
+    const prerelease = core.getBooleanInput(inputNames.prerelease);
+    core.info(`${inputNames.prerelease}: ${JSON.stringify(prerelease)}`);
     joi_1.default.assert(prerelease, prereleaseSchema);
-    return Boolean(prerelease);
+    return prerelease;
 }
 exports.getPreRelease = getPreRelease;
 function getPreReleaseId() {
     const prereleaseId = core.getInput(inputNames.prereleaseId);
-    core.info(`inputs.${inputNames.prereleaseId}=${JSON.stringify(prereleaseId)}`);
+    core.info(`${inputNames.prereleaseId}: ${JSON.stringify(prereleaseId)}`);
     joi_1.default.assert(prereleaseId, prereleaseIdSchema);
     return prereleaseId;
 }
 exports.getPreReleaseId = getPreReleaseId;
 function getTagPrefix() {
     const tagPrefix = core.getInput(inputNames.tagPrefix);
-    core.info(`inputs.${inputNames.tagPrefix}=${JSON.stringify(tagPrefix)}`);
+    core.info(`${inputNames.tagPrefix}: ${JSON.stringify(tagPrefix)}`);
     joi_1.default.assert(tagPrefix, tagPrefixSchema);
     return tagPrefix;
 }
 exports.getTagPrefix = getTagPrefix;
 function getFallbackVersion() {
     const fallbackVersion = core.getInput(inputNames.fallbackVersion);
-    core.info(`inputs.${inputNames.fallbackVersion}=${JSON.stringify(fallbackVersion)}`);
+    core.info(`${inputNames.fallbackVersion}: ${JSON.stringify(fallbackVersion)}`);
     joi_1.default.assert(fallbackVersion, fallbackVersionSchema);
     return fallbackVersion;
 }
@@ -48930,7 +48934,7 @@ const outputNames = {
 };
 function setOutput(output) {
     const { version } = output;
-    core.info(`outputs.${outputNames.version}=${JSON.stringify(version)}`);
+    core.info(`${outputNames.version}: ${JSON.stringify(version)}`);
     core.setOutput(outputNames.version, version);
 }
 exports.setOutput = setOutput;

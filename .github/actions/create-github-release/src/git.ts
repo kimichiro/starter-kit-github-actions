@@ -34,28 +34,3 @@ export async function deleteRemoteTag(tagName: TagName): Promise<void> {
 
     core.info(`delete tag '${tagName}' on remote '${remote}'`)
 }
-
-export interface RemoteInfo {
-    owner: string
-    repo: string
-}
-export async function getRemoteInfo(): Promise<RemoteInfo | undefined> {
-    const git = simpleGit()
-
-    try {
-        let remoteResult = await git.remote([])
-        const remote = remoteResult?.trim()
-
-        remoteResult = await git.remote(['get-url', remote as string])
-        const gitUrl = remoteResult?.trim()
-
-        core.info(`remote git url '${gitUrl}'`)
-
-        const pattern = /(?<owner>[^/]+)\/(?<repo>[^/]+)\.git$/
-        const matches = pattern.exec(gitUrl as string)
-
-        return matches?.groups as RemoteInfo | undefined
-    } catch (error) {
-        core.warning(`failed to delete remote tag: ${error?.toString()}`)
-    }
-}

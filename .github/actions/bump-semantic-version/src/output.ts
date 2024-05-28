@@ -11,7 +11,7 @@ export type Output = Partial<{
 export function setOutput(output: Output): void {
     const { version } = output
 
-    core.info(`outputs.${outputNames.version}=${JSON.stringify(version)}`)
+    core.info(`${outputNames.version}: ${JSON.stringify(version)}`)
 
     core.setOutput(outputNames.version, version)
 }
