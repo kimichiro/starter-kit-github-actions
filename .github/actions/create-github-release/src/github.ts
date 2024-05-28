@@ -31,7 +31,7 @@ export async function createRelease(
             prerelease: prerelease,
             generate_release_notes: true,
         })
-        needRollback = release.data == null
+        needRollback = needRollback && release.data == null
 
         const { html_url } = release.data
         return html_url
