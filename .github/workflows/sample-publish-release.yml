@@ -1,13 +1,17 @@
-name: Publish Release
+name: Sample Publish Release
 
 on:
-  workflow_call:
+  workflow_dispatch:
     inputs:
       release-type:
         description: Release Type
-        type: string
         required: true
         default: patch
+        type: choice
+        options:
+          - major
+          - minor
+          - patch
 
 jobs:
   publish-release:

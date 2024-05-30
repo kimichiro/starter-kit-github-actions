@@ -48761,7 +48761,8 @@ async function run() {
         const tagPrefix = (0, input_1.getTagPrefix)();
         const fallbackVersion = (0, input_1.getFallbackVersion)();
         core.endGroup();
-        const version = await (0, version_1.bumpVersion)(type, preRelease, preReleaseId, tagPrefix, fallbackVersion);
+        const versions = await (0, version_1.findVersions)(tagPrefix);
+        const version = await (0, version_1.bumpVersion)(type, preRelease, preReleaseId, fallbackVersion, versions);
         core.startGroup('outputs');
         (0, output_1.setOutput)({ version });
         core.endGroup();
@@ -48974,11 +48975,20 @@ var __importDefault = (this && this.__importDefault) || function (mod) {
     return (mod && mod.__esModule) ? mod : { "default": mod };
 };
 Object.defineProperty(exports, "__esModule", ({ value: true }));
-exports.bumpVersion = exports.findMostRecentVersion = void 0;
+exports.bumpVersion = exports.findVersions = void 0;
 const core = __importStar(__nccwpck_require__(2186));
 const semver_1 = __importDefault(__nccwpck_require__(1383));
 const simple_git_1 = __nccwpck_require__(9103);
-async function findMostRecentVersion(tagPrefix) {
+function getSemanticVersions(tagNames, tagPrefix) {
+    return tagNames
+        .flatMap((tagName) => tagPrefix != null && tagPrefix.length > 0
+        ? tagName.startsWith(tagPrefix)
+            ? tagName.substring(tagPrefix.length)
+            : []
+        : tagName)
+        .filter((tag) => semver_1.default.valid(tag));
+}
+async function findVersions(tagPrefix) {
     const git = (0, simple_git_1.simpleGit)();
     const describeResult = await git.raw([
         'describe',
@@ -48986,38 +48996,79 @@ async function findMostRecentVersion(tagPrefix) {
         '--abbrev=0',
         '--first-parent',
         '--always',
-        ...(tagPrefix?.length > 0 ? [`--match="${tagPrefix}**"`] : []),
+        ...(tagPrefix != null && tagPrefix?.length > 0 ? [`--match="${tagPrefix}**"`] : []),
         'HEAD',
     ]);
     const commit = describeResult?.trim();
-    const tagResult = await git.tag(['--points-at', commit]);
-    const tags = tagResult
-        .split(/\s/)
-        .flatMap((tagName) => tagPrefix?.length > 0
-        ? tagName.startsWith(tagPrefix)
-            ? tagName.substring(tagPrefix.length)
-            : []
-        : tagName);
-    const recentVersion = semver_1.default.maxSatisfying(tags, '*', {
+    const revListResult = await git.raw(['rev-list', '--first-parent', '--simplify-by-decoration', commit]);
+    const commits = revListResult.split(/\s/g).filter((c) => !!c);
+    const tagResult = await git.raw(['tag', ...commits.flatMap((commit) => ['--points-at', commit])]);
+    const tags = tagResult.split(/\s/g);
+    core.debug(`tags: ${JSON.stringify(tags)}`);
+    const versions = getSemanticVersions(tags, tagPrefix);
+    core.debug(`versions: ${JSON.stringify(versions)}`);
+    return versions;
+}
+exports.findVersions = findVersions;
+async function bumpVersion(type, prerelease, prereleaseId, fallbackVersion, versions) {
+    // 1. Find max release version
+    core.debug(`step: 1`);
+    const releaseVersion = semver_1.default.maxSatisfying([fallbackVersion, ...versions], '*') ?? fallbackVersion;
+    core.info(`release-version: ${JSON.stringify(releaseVersion)}`);
+    // 2. Find max pre-release version of given choice based on (1)
+    core.debug(`step: 2`);
+    const prereleaseVersion = semver_1.default.maxSatisfying([fallbackVersion, ...versions], '*', {
         includePrerelease: true,
-    });
-    if (recentVersion == null) {
-        core.info(`no recent tag found at ${commit}`);
+    }) ?? fallbackVersion;
+    core.info(`prerelease-version: ${JSON.stringify(prereleaseVersion)}`);
+    // 3. Bump version of given `type`, `prerelease` based on (1)
+    core.debug(`step: 3`);
+    const nextVersion = semver_1.default.inc(releaseVersion, prerelease ? `pre${type}` : type, false, prereleaseId);
+    if (nextVersion == null) {
         return;
     }
-    core.info(`following tags found at ${commit}`);
-    core.info(`tags=${JSON.stringify(tags)}`);
-    return recentVersion;
-}
-exports.findMostRecentVersion = findMostRecentVersion;
-async function bumpVersion(type, prerelease, prereleaseId, tagPrefix, fallbackVersion) {
-    const recentVersion = await findMostRecentVersion(tagPrefix);
-    const baseVersion = recentVersion == null ? fallbackVersion : recentVersion;
-    const isPrerelease = semver_1.default.prerelease(baseVersion) != null;
-    const bumpVersion = prerelease
-        ? semver_1.default.inc(baseVersion, isPrerelease ? 'prerelease' : `pre${type}`, false, prereleaseId)
-        : semver_1.default.inc(baseVersion, type);
-    return bumpVersion ?? undefined;
+    // 4. If (1) and (2) is equals, return (3)
+    core.debug(`step: 4`);
+    if (releaseVersion === prereleaseVersion) {
+        return nextVersion ?? undefined;
+    }
+    // 5. If given `prerelease=false`, return (3)
+    core.debug(`step: 5`);
+    if (!prerelease) {
+        return nextVersion ?? undefined;
+    }
+    // 6. Find max pre-release version from major/minor/patch of (3)
+    //     - for `major` type, `major.0.0`
+    //     - for `minor` type, `major.minor.0`
+    //     - for `patch` type, `major.minor.patch`
+    core.debug(`step: 6`);
+    let maxPrerelease;
+    const major = semver_1.default.major(nextVersion);
+    const minor = semver_1.default.minor(nextVersion);
+    const patch = semver_1.default.patch(nextVersion);
+    if (type === 'major') {
+        maxPrerelease =
+            semver_1.default.maxSatisfying(versions, `~${major}.0.0-${prereleaseId}.0`, { includePrerelease: true }) ?? undefined;
+    }
+    else if (type === 'minor') {
+        maxPrerelease =
+            semver_1.default.maxSatisfying(versions, `~${major}.${minor}.0-${prereleaseId}.0`, { includePrerelease: true }) ??
+                undefined;
+    }
+    else if (type === 'patch') {
+        maxPrerelease =
+            semver_1.default.maxSatisfying(versions, `~${major}.${minor}.${patch}-${prereleaseId}.0`, {
+                includePrerelease: true,
+            }) ?? undefined;
+    }
+    // 7. If (6) not exists, return (3)
+    core.debug(`step: 7`);
+    if (maxPrerelease == null) {
+        return nextVersion;
+    }
+    // 8. Bump version of given `type` with `prerelease=true` based on (6), return (8)
+    core.debug(`step: 8`);
+    return semver_1.default.inc(maxPrerelease, prerelease ? 'prerelease' : type, false, prereleaseId) ?? undefined;
 }
 exports.bumpVersion = bumpVersion;
 

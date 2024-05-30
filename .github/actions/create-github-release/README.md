@@ -5,10 +5,15 @@ Create new release through GitHub REST API by following instruction below.
 - Create new release with generated release notes.
 - On any failure, delete tag if push previously.
 
+> [!NOTE] Limitation
+> - This action cannot push a protected tag due to security concerns in [this discussion](https://github.com/orgs/community/discussions/68419).
+
 ## Usage
 
 ```yml
 - uses: actions/checkout@v4
+  with:
+    fetch-tags: true
 - uses: ./.github/actions/create-github-release
   with:
     tag-name: release/1.2.3-rc.4
