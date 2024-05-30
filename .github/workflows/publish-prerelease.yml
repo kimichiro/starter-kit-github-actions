@@ -19,14 +19,14 @@ jobs:
         with:
           fetch-tags: true
       # bump semantic version as prerelease
-      - uses: ./.github/actions/bump-semantic-version
+      - uses: kimichiro/starter-kit-github-actions/.github/actions/bump-semantic-version@HEAD
         id: bump-prerelease-version
         with:
           type: ${{ inputs.release-type }} 
           prerelease: true
           tag-prefix: release/
       # push git tag and create GitHub prerelease
-      - uses: ./.github/actions/create-github-release
+      - uses: kimichiro/starter-kit-github-actions/.github/actions/create-github-release@HEAD
         id: create-prerelease-release
         with:
           tag-name: release/${{ steps.bump-prerelease-version.outputs.version }}
