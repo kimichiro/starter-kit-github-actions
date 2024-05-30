@@ -8,6 +8,10 @@ on:
         type: string
         required: true
         default: patch
+    secrets:
+      ACTIONS_PAT:
+        description: A personal access token (PAT) for used in GitHub Actions
+        required: true
 
 jobs:
   publish-release:
@@ -32,4 +36,4 @@ jobs:
           tag-name: release/${{ steps.bump-prerelease-version.outputs.version }}
           prerelease: true
         env:
-          GITHUB_TOKEN: ${{ secrets.GITHUB_TOKEN }}
+          GITHUB_TOKEN: ${{ secrets.ACTIONS_PAT }}
