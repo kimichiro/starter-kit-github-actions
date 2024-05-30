@@ -1,24 +1,13 @@
 name: Publish Prerelease
 
 on:
-  pull_request:
-    types: closed
-    branches: main
-    paths:
-      - '!.github/**'
-      - '!.gitignore'
-      - '!assets/**'
-  workflow_dispatch:
+  workflow_call:
     inputs:
       release-type:
         description: Release Type
+        type: string
         required: true
         default: patch
-        type: choice
-        options:
-          - major
-          - minor
-          - patch
 
 jobs:
   publish-release:
