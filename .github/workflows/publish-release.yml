@@ -26,7 +26,7 @@ jobs:
       - uses: ./.github/actions/bump-semantic-version
         id: bump-release-version
         with:
-          type: patch
+          type: ${{ inputs.release-type }} 
           tag-prefix: release/
       # push git tag and create GitHub release
       - uses: ./.github/actions/create-github-release
