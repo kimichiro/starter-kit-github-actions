@@ -4,10 +4,14 @@ on:
   workflow_call:
     inputs:
       release-type:
-        description: Release Type
+        description: Release type for version resolution
         type: string
         required: true
         default: patch
+      tag-prefix:
+        description: Tag prefix for identifying version
+        type: string
+        default: ${{ vars.STARTER_KIT_TAG_PREFIX }}
     secrets:
       STARTER_KIT_ACTIONS_TOKEN:
         description: A personal access token (PAT) for used in GitHub Actions
@@ -27,11 +31,11 @@ jobs:
         id: bump-release-version
         with:
           type: ${{ inputs.release-type }} 
-          tag-prefix: ${{ vars.STARTER_KIT_TAG_PREFIX }}
+          tag-prefix: ${{ inputs.tag-prefix }}
       # push git tag and create GitHub release
       - uses: kimichiro/starter-kit-github-actions/.github/actions/create-github-release@HEAD
         id: create-release-release
         with:
-          tag-name: ${{ vars.STARTER_KIT_TAG_PREFIX }}${{ steps.bump-release-version.outputs.version }}
+          tag-name: ${{ inputs.tag-prefix }}${{ steps.bump-release-version.outputs.version }}
         env:
           GITHUB_TOKEN: ${{ secrets.STARTER_KIT_ACTIONS_TOKEN }}
