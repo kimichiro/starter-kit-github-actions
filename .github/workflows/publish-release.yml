@@ -9,7 +9,7 @@ on:
         required: true
         default: patch
     secrets:
-      ACTIONS_PAT:
+      STARTER_KIT_ACTIONS_TOKEN:
         description: A personal access token (PAT) for used in GitHub Actions
         required: true
 
@@ -27,11 +27,11 @@ jobs:
         id: bump-release-version
         with:
           type: ${{ inputs.release-type }} 
-          tag-prefix: release/
+          tag-prefix: ${{ vars.STARTER_KIT_TAG_PREFIX }}
       # push git tag and create GitHub release
       - uses: kimichiro/starter-kit-github-actions/.github/actions/create-github-release@HEAD
         id: create-release-release
         with:
-          tag-name: release/${{ steps.bump-release-version.outputs.version }}
+          tag-name: ${{ vars.STARTER_KIT_TAG_PREFIX }}${{ steps.bump-release-version.outputs.version }}
         env:
-          GITHUB_TOKEN: ${{ secrets.ACTIONS_PAT }}
+          GITHUB_TOKEN: ${{ secrets.STARTER_KIT_ACTIONS_TOKEN }}

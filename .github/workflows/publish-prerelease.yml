@@ -9,7 +9,7 @@ on:
         required: true
         default: patch
     secrets:
-      ACTIONS_PAT:
+      STARTER_KIT_ACTIONS_TOKEN:
         description: A personal access token (PAT) for used in GitHub Actions
         required: true
 
@@ -28,12 +28,12 @@ jobs:
         with:
           type: ${{ inputs.release-type }} 
           prerelease: true
-          tag-prefix: release/
+          tag-prefix: ${{ vars.STARTER_KIT_TAG_PREFIX }}
       # push git tag and create GitHub prerelease
       - uses: kimichiro/starter-kit-github-actions/.github/actions/create-github-release@HEAD
         id: create-prerelease-release
         with:
-          tag-name: release/${{ steps.bump-prerelease-version.outputs.version }}
+          tag-name: ${{ vars.STARTER_KIT_TAG_PREFIX }}${{ steps.bump-prerelease-version.outputs.version }}
           prerelease: true
         env:
-          GITHUB_TOKEN: ${{ secrets.ACTIONS_PAT }}
+          GITHUB_TOKEN: ${{ secrets.STARTER_KIT_ACTIONS_TOKEN }}
