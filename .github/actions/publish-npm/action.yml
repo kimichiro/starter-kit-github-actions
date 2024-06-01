@@ -1,0 +1,28 @@
+name: Publish Npm Package
+description: Publish npm package
+inputs:
+  registry-url:
+    description: npm package registry to publish a package to
+    required: true
+  scope:
+    description: package scope associated with `registry-url`
+
+runs:
+  using: composite
+  steps:
+    - name: Validate Inputs
+      run: |
+        [[ "${{ inputs.registry-url }}" ]] || { echo "'registry-url' must not be empty string" ; exit 1 ; }
+      shell: bash
+    - name: Setup Npm Registry
+      run: |
+        if [[ "${{ inputs.scope }}" ]]; \
+          then npm config set @${{ inputs.scope }}:registry="${{ inputs.registry-url }}" --location project; \
+          else npm config set registry="${{ inputs.registry-url }}" --location project; \
+        fi
+        REGISTRY_URL=${{ inputs.registry-url }}
+        npm config set //${REGISTRY_URL/#http*:\/\//}:_authToken=$NODE_AUTH_TOKEN --location project
+      shell: bash
+    - name: Publish Package
+      run: npm publish
+      shell: bash

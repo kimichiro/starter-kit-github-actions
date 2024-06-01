@@ -1,0 +1,35 @@
+name: Build and Test (Npm)
+description: Run build and test on npm package
+inputs:
+  version:
+    description: Semantic version to be set as npm package version, skip if unset
+  pack:
+    description: Whether to pack a package in zip file
+    default: 'false'
+outputs:
+  package-name:
+    description: Package file name
+    value: ${{ steps.generator.outputs.package-name }}
+
+runs:
+  using: composite
+  steps:
+    - name: Set Package Version
+      run: |
+        [[ "${{ inputs.version }}" ]] && npm pkg set version="${{ inputs.version }}"
+      shell: bash
+    - name: Clean Install
+      run: npm ci
+      shell: bash
+    - name: Build Package
+      run: npm run build
+      shell: bash
+    - name: Test Package
+      run: npm test
+      shell: bash
+    - name: Pack Contents
+      run: |
+        [[ "${{ inputs.pack }}" == [Tt][Rr][Uu][Ee] ]] && PACKAGE_NAME=$(npm pack)
+        echo "package-name=$PACKAGE_NAME" >> $GITHUB_OUTPUT
+      shell: bash
+
