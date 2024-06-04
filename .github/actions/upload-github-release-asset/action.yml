@@ -1,0 +1,43 @@
+name: Upload Asset to GitHub Release
+description: Upload an asset files to GitHub Release
+inputs:
+  upload-url:
+    description: Uri template for uploading asset to target release (upload_url property from release object)
+    required: true
+  filename:
+    description: Filename including its path to upload
+    required: true
+  content-type:
+    description: MIME type for asset file
+    required: true
+  label:
+    description: Label to be appeared on release
+
+runs:
+  using: composite
+  steps:
+    - name: Validate Inputs
+      run: |
+        [[ "${{ inputs.upload-url }}" ]] || { echo "'upload-url' must not be empty string" ; exit 1 ; }
+        [[ "${{ inputs.filename }}" ]] || { echo "'filename' must not be empty string" ; exit 1 ; }
+        [[ "${{ inputs.content-type }}" ]] || { echo "'content-type' must not be empty string" ; exit 1 ; }
+      shell: bash
+    - name: Expand URI Template
+      uses: kimichiro/starter-kit-github-actions/.github/actions/expand-uri-template@HEAD
+      id: expand-uri-template
+      with:
+        uri-template: ${{ inputs.upload-url }}
+      env:
+        TEMPLATE_VAR_name: ${{ inputs.filename }}
+        TEMPLATE_VAR_label: ${{ inputs.label }}
+    - name: REST - Upload a release asset
+      run: |
+        curl -L \
+          -X POST \
+          -H "Accept: application/vnd.github+json" \
+          -H "Authorization: Bearer ${{ env.GITHUB_TOKEN }}" \
+          -H "X-GitHub-Api-Version: 2022-11-28" \
+          -H "Content-Type: ${{ inputs.content-type }}" \
+          "${{ steps.expand-uri-template.outputs.url }}" \
+          --data-binary "@${{ inputs.filename }}"
+      shell: bash

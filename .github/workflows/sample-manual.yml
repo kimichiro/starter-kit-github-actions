@@ -22,11 +22,11 @@ jobs:
         run: echo "Hello ${{ inputs.name }}"
       - name: Conditional greeting with reusable action
         if: ${{ inputs.reusable-greet }}
-        uses: actions/hello-world-javascript-action@main
+        uses: actions/hello-world-javascript-action@HEAD
         with:
           who-to-greet: "[[${{ inputs.name }}]]"
   call-absolute-private-workflow:
-    uses: kimichiro/starter-kit-github-actions/.github/workflows/sample-callable.yml@main
+    uses: kimichiro/starter-kit-github-actions/.github/workflows/sample-callable.yml@HEAD
     with:
       caller: call-absolute-private-workflow
     secrets: inherit
