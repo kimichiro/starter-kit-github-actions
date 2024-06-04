@@ -10,9 +10,10 @@ Expand uri template as implementation for RFC 6570
 ```yml
 - uses: ./.github/actions/expand-uri-template
   with:
-    uri-template: http://example.org/{file}
+    uri-template: http://example.org/{file}{?mime}
   env:
     TEMPLATE_VAR_file: hello.txt
+    TEMPLATE_VAR_mime: text/plain
 ```
 
 ## Inputs

@@ -40154,7 +40154,7 @@ async function expandUriTemplate(uriTemplate) {
         const ctxName = envName.substring(ENV_PREFIX.length);
         const ctxValue = process.env[envName];
         core.debug(`${ctxName}: ${JSON.stringify(ctxValue)}`);
-        return { ...ctx, [ctxName]: ctxValue };
+        return !ctxValue ? ctx : { ...ctx, [ctxName]: ctxValue };
     }, {});
     const url = template.expand(context);
     return url;

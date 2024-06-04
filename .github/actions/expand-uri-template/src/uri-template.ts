@@ -16,7 +16,7 @@ export async function expandUriTemplate(uriTemplate: string): Promise<string> {
         const ctxValue = process.env[envName]
         core.debug(`${ctxName}: ${JSON.stringify(ctxValue)}`)
 
-        return { ...ctx, [ctxName]: ctxValue }
+        return !ctxValue ? ctx : { ...ctx, [ctxName]: ctxValue }
     }, {})
 
     const url = template.expand(context)
