@@ -1,0 +1,13 @@
+name: Expand URI Template (RFC 6570)
+description: Expand uri template as implementation for RFC 6570
+inputs:
+  uri-template:
+    description: Uri template to be expanded
+    required: true
+outputs:
+  url:
+    description: Url expanded from uri template
+
+runs:
+  using: 'node20'
+  main: 'dist/index.js'
