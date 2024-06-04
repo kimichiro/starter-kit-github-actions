@@ -24,4 +24,5 @@ Run build and test on npm package.
 
 ## Outputs
 
-- `package-name` - Package file name.
+- `package-name` - Npm package name.
+- `content-filename` - Content filename.

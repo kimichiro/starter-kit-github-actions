@@ -8,8 +8,11 @@ inputs:
     default: 'false'
 outputs:
   package-name:
-    description: Package file name
-    value: ${{ steps.generator.outputs.package-name }}
+    description: Npm package name
+    value: ${{ steps.pack-contents.outputs.package-name }}
+  content-filename:
+    description: Content filename
+    value: ${{ steps.pack-contents.outputs.content-filename }}
 
 runs:
   using: composite
@@ -28,8 +31,14 @@ runs:
       run: npm test
       shell: bash
     - name: Pack Contents
+      id: pack-contents
       run: |
-        [[ "${{ inputs.pack }}" == [Tt][Rr][Uu][Ee] ]] && PACKAGE_NAME=$(npm pack)
+        PACKAGE_NAME=$(npm pkg get name)
+        if [[ "$PACKAGE_NAME" == "{}" ]]; \
+          then PACKAGE_NAME=; \
+          else PACKAGE_NAME=${PACKAGE_NAME//\"/}; \
+        fi
+        [[ "${{ inputs.pack }}" == [Tt][Rr][Uu][Ee] ]] && CONTENT_FILENAME=$(npm pack)
         echo "package-name=$PACKAGE_NAME" >> $GITHUB_OUTPUT
+        echo "content-filename=$CONTENT_FILENAME" >> $GITHUB_OUTPUT
       shell: bash
-
