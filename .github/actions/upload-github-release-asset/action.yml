@@ -23,7 +23,7 @@ runs:
         [[ "${{ inputs.content-type }}" ]] || { echo "'content-type' must not be empty string" ; exit 1 ; }
       shell: bash
     - name: Expand URI Template
-      uses: kimichiro/starter-kit-github-actions/.github/actions/expand-uri-template@feature/iteration-2
+      uses: kimichiro/starter-kit-github-actions/.github/actions/expand-uri-template@HEAD
       id: expand-uri-template
       with:
         uri-template: ${{ inputs.upload-url }}

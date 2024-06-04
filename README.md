@@ -48,11 +48,11 @@ Jobs:
 [github-actions-link]: https://github.com/features/actions
 
 [publish-prerelease-badge]: https://img.shields.io/badge/publish--prerelease-181717?logo=githubactions
-[publish-prerelease-link]: https://github.com/kimichiro/starter-kit-github-actions/tree/feature/deployment/.github/workflows/publish-prerelease.yml
+[publish-prerelease-link]: https://github.com/kimichiro/starter-kit-github-actions/tree/main/.github/workflows/publish-prerelease.yml
 [publish-release-badge]: https://img.shields.io/badge/publish--release-181717?logo=githubactions
-[publish-release-link]: https://github.com/kimichiro/starter-kit-github-actions/tree/feature/deployment/.github/workflows/publish-release.yml
+[publish-release-link]: https://github.com/kimichiro/starter-kit-github-actions/tree/main/.github/workflows/publish-release.yml
 
 [bump-semantic-version-badge]: https://img.shields.io/badge/bump--semantic--version-181717?logo=githubactions
-[bump-semantic-version-link]: https://github.com/kimichiro/starter-kit-github-actions/tree/feature/deployment/.github/actions/bump-semantic-version
+[bump-semantic-version-link]: https://github.com/kimichiro/starter-kit-github-actions/tree/main/.github/actions/bump-semantic-version
 [create-github-release-badge]: https://img.shields.io/badge/create--github--release-181717?logo=githubactions
-[create-github-release-link]: https://github.com/kimichiro/starter-kit-github-actions/tree/feature/deployment/.github/actions/create-github-release
+[create-github-release-link]: https://github.com/kimichiro/starter-kit-github-actions/tree/main/.github/actions/create-github-release
