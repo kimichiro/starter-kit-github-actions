@@ -34,3 +34,23 @@ export async function deleteRemoteTag(tagName: TagName): Promise<void> {
 
     core.info(`delete tag '${tagName}' on remote '${remote}'`)
 }
+
+export async function getHeadSha(): Promise<string> {
+    const git = simpleGit()
+
+    const revparseResult = await git.revparse(['--verify', 'HEAD'])
+
+    core.info(`HEAD: ${JSON.stringify(revparseResult)}`)
+
+    return revparseResult
+}
+
+export async function getCommitMessage(commit: string): Promise<string> {
+    const git = simpleGit()
+
+    const logResult = await git.raw(['log', '-1', '--pretty=%B', commit])
+
+    core.info(`Commit Message: ${JSON.stringify(logResult)}`)
+
+    return logResult
+}

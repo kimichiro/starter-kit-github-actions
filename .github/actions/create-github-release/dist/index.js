@@ -46204,7 +46204,7 @@ var __importStar = (this && this.__importStar) || function (mod) {
     return result;
 };
 Object.defineProperty(exports, "__esModule", ({ value: true }));
-exports.deleteRemoteTag = exports.addRemoteTag = void 0;
+exports.getCommitMessage = exports.getHeadSha = exports.deleteRemoteTag = exports.addRemoteTag = void 0;
 const core = __importStar(__nccwpck_require__(2186));
 const simple_git_1 = __nccwpck_require__(9103);
 async function addRemoteTag(tagName) {
@@ -46230,6 +46230,20 @@ async function deleteRemoteTag(tagName) {
     core.info(`delete tag '${tagName}' on remote '${remote}'`);
 }
 exports.deleteRemoteTag = deleteRemoteTag;
+async function getHeadSha() {
+    const git = (0, simple_git_1.simpleGit)();
+    const revparseResult = await git.revparse(['--verify', 'HEAD']);
+    core.info(`HEAD: ${JSON.stringify(revparseResult)}`);
+    return revparseResult;
+}
+exports.getHeadSha = getHeadSha;
+async function getCommitMessage(commit) {
+    const git = (0, simple_git_1.simpleGit)();
+    const logResult = await git.raw(['log', '-1', '--pretty=%B', commit]);
+    core.info(`Commit Message: ${JSON.stringify(logResult)}`);
+    return logResult;
+}
+exports.getCommitMessage = getCommitMessage;
 
 
 /***/ }),
@@ -46265,7 +46279,17 @@ var __importStar = (this && this.__importStar) || function (mod) {
 Object.defineProperty(exports, "__esModule", ({ value: true }));
 exports.createRelease = void 0;
 const core = __importStar(__nccwpck_require__(2186));
+const os_1 = __nccwpck_require__(2037);
 const git_1 = __nccwpck_require__(6350);
+async function getDefaultBody(tagName) {
+    const commitSha = await (0, git_1.getHeadSha)();
+    const commitMessage = await (0, git_1.getCommitMessage)(commitSha);
+    const lines = [
+        `sha: ${commitSha}`,
+        `tag: ${tagName}`,
+    ];
+    return `${commitMessage}${lines.join(os_1.EOL)}`;
+}
 async function createRelease(tagName, prerelease, title, body) {
     let needRollback = false;
     try {
@@ -46276,12 +46300,14 @@ async function createRelease(tagName, prerelease, title, body) {
         const repo = repository.split('/')[1];
         const { Octokit } = await __nccwpck_require__.e(/* import() */ 840).then(__nccwpck_require__.bind(__nccwpck_require__, 4840));
         const octokit = new Octokit({ auth: token, log: console });
+        title = !!title ? title : tagName;
+        body = !!body ? body : await getDefaultBody(tagName);
         const release = await octokit.rest.repos.createRelease({
             owner,
             repo,
             tag_name: tagName,
-            ...(title != null ? { name: title } : {}),
-            ...(body != null ? { body: body } : {}),
+            ...(!!title ? { name: title } : {}),
+            ...(!!body ? { body: body } : {}),
             prerelease: prerelease,
             generate_release_notes: true,
         });
