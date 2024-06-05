@@ -9,10 +9,12 @@ async function getDefaultBody(tagName: string): Promise<string> {
     const commitMessage = await getCommitMessage(commitSha)
 
     const lines = [
+        commitMessage,
+        ' ',
         `sha: ${commitSha}`,
         `tag: ${tagName}`,
     ]
-    return `${commitMessage}${lines.join(EOL)}`
+    return lines.join(EOL)
 }
 
 export async function createRelease(
