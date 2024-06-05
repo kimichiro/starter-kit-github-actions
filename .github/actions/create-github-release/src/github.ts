@@ -1,7 +1,19 @@
 import * as core from '@actions/core'
+import { EOL } from 'os'
 
 import { Prerelease, TagName, Title, Body } from './input'
-import { addRemoteTag, deleteRemoteTag } from './git'
+import { addRemoteTag, deleteRemoteTag, getCommitMessage, getHeadSha } from './git'
+
+async function getDefaultBody(tagName: string): Promise<string> {
+    const commitSha = await getHeadSha()
+    const commitMessage = await getCommitMessage(commitSha)
+
+    const lines = [
+        `sha: ${commitSha}`,
+        `tag: ${tagName}`,
+    ]
+    return `${commitMessage}${lines.join(EOL)}`
+}
 
 export async function createRelease(
     tagName: TagName,
@@ -22,12 +34,15 @@ export async function createRelease(
         const { Octokit } = await import('octokit')
         const octokit = new Octokit({ auth: token, log: console })
 
+        title = !!title ? title : tagName
+        body = !!body ? body : await getDefaultBody(tagName)
+
         const release = await octokit.rest.repos.createRelease({
             owner,
             repo,
             tag_name: tagName,
-            ...(title != null ? { name: title } : {}),
-            ...(body != null ? { body: body } : {}),
+            ...(!!title ? { name: title } : {}),
+            ...(!!body ? { body: body } : {}),
             prerelease: prerelease,
             generate_release_notes: true,
         })
