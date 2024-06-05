@@ -1,0 +1,70 @@
+name: Deploy NPM package
+
+on:
+  workflow_call:
+    inputs:
+      tag-name:
+        description: Release tag name
+        type: string
+        required: true
+      tag-prefix:
+        description: Tag prefix for version resolution
+        type: string
+        default: ${{ vars.STARTER_KIT_TAG_PREFIX }}
+      npm-registry-url:
+        description: Npm registry url
+        type: string
+        required: true
+      npm-package-scope:
+        description: Npm package scope without '@'
+        type: string
+      release-upload-url:
+        description: Release asset upload uri template
+        type: string
+        required: true
+    secrets:
+      STARTER_KIT_ACTIONS_TOKEN:
+        description: |
+          GitHub personal access token with following permission
+          - contents: write
+        required: true
+
+jobs:
+  deploy-npm:
+    runs-on: ubuntu-latest
+    permissions:
+      contents: write
+      packages: write
+    steps:
+      - uses: actions/checkout@v4
+      - uses: actions/setup-node@v4
+        with:
+          node-version: 20
+      - run: |
+          VERSION=${TAG_NAME/#$TAG_PREFIX/}
+          echo "version=$VERSION" >> $GITHUB_OUTPUT
+        id: parse-version
+        env:
+          TAG_NAME: ${{ inputs.tag-name }}
+          TAG_PREFIX: ${{ inputs.tag-prefix }}
+      - uses: kimichiro/starter-kit-github-actions/.github/actions/build-test-npm@HEAD
+        id: build-test-npm
+        with:
+          version: ${{ steps.parse-version.outputs.version }}
+          pack: true
+      - uses: kimichiro/starter-kit-github-actions/.github/actions/publish-npm@HEAD
+        id: publish-npm
+        with:
+          registry-url: ${{ inputs.npm-registry-url }}
+          scope: ${{ inputs.npm-package-scope }}
+        env:
+          NODE_AUTH_TOKEN: ${{ secrets.GITHUB_TOKEN }}
+      - uses: kimichiro/starter-kit-github-actions/.github/actions/upload-github-release-asset@HEAD
+        id: upload-github-release-asset
+        with:
+          upload-url: ${{ inputs.release-upload-url }}
+          filename: ${{ steps.build-test-npm.outputs.content-filename }}
+          content-type: application/tar+gzip
+          label: NPM package (${{ steps.build-test-npm.outputs.package-name }})
+        env:
+          GITHUB_TOKEN: ${{ secrets.STARTER_KIT_ACTIONS_TOKEN }}

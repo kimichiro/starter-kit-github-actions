@@ -14,7 +14,9 @@ on:
         default: ${{ vars.STARTER_KIT_TAG_PREFIX }}
     secrets:
       STARTER_KIT_ACTIONS_TOKEN:
-        description: A personal access token (PAT) for used in GitHub Actions
+        description: |
+          GitHub personal access token with following permission
+          - contents: write
         required: true
 
 jobs:
